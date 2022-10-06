@@ -18,6 +18,9 @@ class User(AbstractUser):
     email = models.EmailField(blank=False, unique=True)
     first_name = models.CharField("First name", max_length=150, blank=True)
     bio = models.TextField("Biography", blank=True)
+    confirmation_code = models.CharField(
+        "First name", max_length=32, blank=True
+    )
 
     def __str__(self):
         return self.username

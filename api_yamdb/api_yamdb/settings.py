@@ -1,6 +1,7 @@
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -122,6 +123,10 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
+
+
+# Debug mode settings
+
 if DEBUG:
     INSTALLED_APPS.append("debug_toolbar")
     REST_FRAMEWORK.update(
@@ -132,3 +137,9 @@ if DEBUG:
             ]
         }
     )
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+# Constants
+
+LEN_COMFIRM_CODE = 16
