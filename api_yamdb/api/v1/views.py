@@ -1,15 +1,18 @@
 """URLs request handlers of the 'api' application."""
 
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.v1.serializers import GetTokenSerializer, SignUpSerializer
+from api.v1.serializers import (GetTokenSerializer, SignUpSerializer,
+                                ReviewSerializer, CommentSerializer)
 from users.conf_code import check_conf_code, make_conf_code
 from users.models import User
+from reviews.models import Review, Comment
+
 
 
 @api_view(["POST"])
@@ -39,3 +42,29 @@ def get_token(request):
             {"access_token": str(access_token)}, status=status.HTTP_201_CREATED
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get("title_id")
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get("title_id")
+        review_id = self.kwargs.get("review_id")
+        review = get_object_or_404(Review, id=review_id, title=title_id)
+        serializer.save(author=self.request.user, review=review)

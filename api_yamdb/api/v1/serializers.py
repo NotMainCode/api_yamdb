@@ -3,6 +3,7 @@
 from rest_framework import serializers
 
 from users.models import User
+from reviews.models import Review, Comment
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -44,3 +45,39 @@ class GetTokenSerializer(serializers.Serializer):
                 "Ensure that confirmation code contain 32 characters."
             )
         return value
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        pass
+
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        pass
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
