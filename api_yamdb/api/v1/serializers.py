@@ -1,9 +1,44 @@
 """Serializers of the 'api' application."""
 
 from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Categories, Genres, Title
+from rest_framework import serializers
 
 from users.models import User
 from reviews.models import Review, Comment
+
+
+class CategoriesSerializer(serializers.ModelSerializer):
+    # slug = serializers.SlugRelatedField(
+    #     queryset=Categories.objects.all(),
+    #     slug_field='slug',
+    #     # read_only=True
+    # )
+
+
+    class Meta:
+        # fields = '__all__'
+        fields = ('name', 'slug')
+        model = Categories
+
+
+class GenresSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genres
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  # 'rating',
+                  'description',
+                  'genre',
+                  'category')
+        model = Title
 
 
 class SignUpSerializer(serializers.Serializer):

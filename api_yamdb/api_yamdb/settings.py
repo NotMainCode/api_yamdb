@@ -17,16 +17,17 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "rest_framework",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
     "rest_framework_simplejwt",
-    "api",
-    "reviews",
+    'django_filters',
+    'reviews',
+    'api',
 ]
 
 MIDDLEWARE = [
