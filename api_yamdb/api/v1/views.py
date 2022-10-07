@@ -3,13 +3,52 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.v1.serializers import GetTokenSerializer, SignUpSerializer
+from api.v1.serializers import (
+    GetTokenSerializer,
+    SignUpSerializer,
+    UsersMeGetSerializer,
+    UsersMePatchSerializer,
+    UsersNameSerializer,
+    UsersSerializer,
+)
+from api.viewsets import (
+    CreateListViewSet,
+    RetrieveUpdate,
+    RetrieveUpdateDestroyViewSet,
+)
 from users.conf_code import check_conf_code, make_conf_code
 from users.models import User
+
+
+class UsersViewset(CreateListViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    permission_classes = (IsAdminUser,)
+    pagination_class = None
+
+
+class UsersNameViewset(RetrieveUpdateDestroyViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersNameSerializer
+    permission_classes = (IsAdminUser,)
+    lookup_field = "username"
+
+
+class UsersMeViewset(RetrieveUpdate):
+    serializer_class = UsersMeGetSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method == "PATCH":
+            return UsersMePatchSerializer
+        return UsersMeGetSerializer
 
 
 @api_view(["POST"])
