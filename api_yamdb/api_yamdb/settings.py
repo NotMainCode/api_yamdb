@@ -1,7 +1,7 @@
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -17,17 +17,17 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
     "rest_framework_simplejwt",
-    'django_filters',
-    'reviews',
-    'api',
+    "django_filters",
+    "reviews",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -124,6 +124,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 
@@ -136,7 +138,11 @@ if DEBUG:
             "DEFAULT_AUTHENTICATION_CLASSES": [
                 "rest_framework_simplejwt.authentication.JWTAuthentication",
                 "rest_framework.authentication.SessionAuthentication",
-            ]
+            ],
+            "DEFAULT_RENDERER_CLASSES": [
+                "rest_framework.renderers.JSONRenderer",
+                "rest_framework.renderers.BrowsableAPIRenderer",
+            ],
         }
     )
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -145,3 +151,6 @@ if DEBUG:
 # Constants
 
 LEN_COMFIRM_CODE = 16
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+}

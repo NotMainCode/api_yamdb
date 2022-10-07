@@ -1,44 +1,41 @@
 """URLs request handlers of the 'api' application."""
 
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters, generics
-from rest_framework.exceptions import PermissionDenied
-from rest_framework import permissions
-from rest_framework.mixins import DestroyModelMixin
+from rest_framework import serializers, status, viewsets
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
-
-from api.v1.serializers import CategoriesSerializer, GenresSerializer, TitleSerializer
-from reviews.models import Categories, Genres, Title
-
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.v1.serializers import (GetTokenSerializer, SignUpSerializer,
-                                ReviewSerializer, CommentSerializer)
+from api.v1.serializers import (
+    CategoriesSerializer,
+    CommentSerializer,
+    GenresSerializer,
+    GetTokenSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleSerializer,
+    UsersMeGetSerializer,
+    UsersMePatchSerializer,
+    UsersNameSerializer,
+    UsersSerializer,
+)
+from api.viewsets import (
+    CreateListViewSet,
+    RetrieveUpdate,
+    RetrieveUpdateDestroyViewSet,
+)
+from reviews.models import Categories, Genres, Review, Title
 from users.conf_code import check_conf_code, make_conf_code
 from users.models import User
-from reviews.models import Review, Comment
 
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from api.v1.serializers import (GetTokenSerializer, SignUpSerializer,
-                                ReviewSerializer, CommentSerializer)
-from users.conf_code import check_conf_code, make_conf_code
-from users.models import User
-from reviews.models import Review, Comment
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
+
+
 # class CategoriesList(generics.ListCreateAPIView):
 #     queryset = Categories.objects.all()
 #     serializer_class = CategoriesSerializer
@@ -91,6 +88,34 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, id=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
+
+
+class UsersViewset(CreateListViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    permission_classes = (IsAdminUser,)
+    pagination_class = None
+
+
+class UsersNameViewset(RetrieveUpdateDestroyViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersNameSerializer
+    permission_classes = (IsAdminUser,)
+    lookup_field = "username"
+
+
+class UsersMeViewset(RetrieveUpdate):
+    serializer_class = UsersMeGetSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method == "PATCH":
+            return UsersMePatchSerializer
+        return UsersMeGetSerializer
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])

@@ -1,12 +1,9 @@
 """Serializers of the 'api' application."""
 
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from reviews.models import Categories, Genres, Title
-from rest_framework import serializers
 
+from reviews.models import Categories, Comment, Genres, Review, Title
 from users.models import User
-from reviews.models import Review, Comment
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -16,29 +13,81 @@ class CategoriesSerializer(serializers.ModelSerializer):
     #     # read_only=True
     # )
 
-
     class Meta:
         # fields = '__all__'
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Categories
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Genres
 
 
 class TitleSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id',
-                  'name',
-                  'year',
-                  # 'rating',
-                  'description',
-                  'genre',
-                  'category')
+        fields = (
+            "id",
+            "name",
+            "year",
+            # 'rating',
+            "description",
+            "genre",
+            "category",
+        )
         model = Title
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        model = User
+
+
+class UsersNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        model = User
+
+
+class UsersMeGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        model = User
+
+
+class UsersMePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+        )
+        model = User
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -84,35 +133,30 @@ class GetTokenSerializer(serializers.Serializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
-        slug_field='name',
+        slug_field="name",
         read_only=True,
     )
     author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
+        slug_field="username", read_only=True
     )
-
-    def validate(self, attrs):
-        pass
 
     class Meta:
         model = Review
-        fields = '__all__'
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
+        fields = "__all__"
 
     def validate(self, attrs):
         pass
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = "__all__"
+
+    def validate(self, attrs):
+        pass

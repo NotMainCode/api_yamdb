@@ -8,9 +8,9 @@ class User(AbstractUser):
     """Modified model User."""
 
     ROLE_OPTIONS = (
-        ("U", "User"),
-        ("M", "Moderator"),
-        ("A", "Admin"),
+        ("User", "User"),
+        ("Moderator", "Moderator"),
+        ("Admin", "Admin"),
     )
     role = models.CharField(
         "Role", max_length=1, choices=ROLE_OPTIONS, default="User"
