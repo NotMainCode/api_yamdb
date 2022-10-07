@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.v1.permissions import IsAuthorOrReadOnly
 from api.v1.serializers import (
     CategoriesSerializer,
     CommentSerializer,
@@ -34,8 +35,7 @@ from users.models import User
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-
-
+    lookup_field = 'slug'
 # class CategoriesList(generics.ListCreateAPIView):
 #     queryset = Categories.objects.all()
 #     serializer_class = CategoriesSerializer
@@ -55,6 +55,7 @@ class GenresViewSet(viewsets.ModelViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -65,6 +66,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))

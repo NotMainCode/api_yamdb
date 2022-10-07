@@ -29,14 +29,17 @@ router_v1_without_pk.register(
     UsersNameViewset,
     basename="users_name",
 )
-# v1_router.register(r'categories/(P<slug>[\w.@+-]+)', CategoriesViewSet, basename='categories')
-router_v1.register("categories", CategoriesViewSet, basename="categories")
-router_v1.register("genres", GenresViewSet, basename="genres")
-router_v1.register("titles", TitleViewSet, basename="titles")
 
+router_v1.register(r'categories', CategoriesViewSet, basename='categories')
+router_v1_without_pk.register(r'categories/(?P<slug>[\w.@+-]+)', CategoriesViewSet, basename='categories')
+
+router_v1.register(r'genres', GenresViewSet, basename='genres')
+router_v1_without_pk.register(r'genres/(?P<slug>[\w.@+-]+)', GenresViewSet, basename='genres')
+router_v1.register(r'titles', TitleViewSet, basename='titles')
 router_v1.register(
     r"titles/(?P<title_id>\d+)/reviews", ReviewViewSet, basename="reviews"
 )
+
 router_v1.register(
     r"titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)" r"/comments",
     CommentViewSet,

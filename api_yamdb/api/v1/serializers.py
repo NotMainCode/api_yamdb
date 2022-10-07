@@ -7,35 +7,31 @@ from users.models import User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    # slug = serializers.SlugRelatedField(
-    #     queryset=Categories.objects.all(),
-    #     slug_field='slug',
-    #     # read_only=True
-    # )
-
     class Meta:
         # fields = '__all__'
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
         model = Categories
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
         model = Genres
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    # slug = serializers.StringRelatedField(read_only=True)
+    genre = GenresSerializer(read_only=True, many=True)
+    category = CategoriesSerializer(read_only=True,)
+
     class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            # 'rating',
-            "description",
-            "genre",
-            "category",
-        )
+        fields = ('id',
+                  'name',
+                  'year',
+                  # 'rating',
+                  'description',
+                  'genre',
+                  'category')
         model = Title
 
 
@@ -144,8 +140,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = "__all__"
 
-    def validate(self, attrs):
-        pass
+    def validate(self, data):
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -158,5 +154,5 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = "__all__"
 
-    def validate(self, attrs):
-        pass
+    def validate(self, data):
+        return data
