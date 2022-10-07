@@ -17,6 +17,11 @@ class UsersSerializer(serializers.ModelSerializer):
         )
         model = User
 
+    def validate_username(self, value):
+        if value.lower() == "me":
+            raise serializers.ValidationError("The name 'me' is not allowed.")
+        return value
+
 
 class UsersNameSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +33,7 @@ class UsersNameSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
+        read_only_fields = ("username", "email")
         model = User
 
 
@@ -53,6 +59,7 @@ class UsersMePatchSerializer(serializers.ModelSerializer):
             "last_name",
             "bio",
         )
+        read_only_fields = ("username", "email")
         model = User
 
 
@@ -75,6 +82,8 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 f"User named '{value}' already exists."
             )
+        if value.lower() == "me":
+            raise serializers.ValidationError("The name 'me' is not allowed.")
         return value
 
 
