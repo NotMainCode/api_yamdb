@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
-    # "django_filters",
     "reviews",
     "api",
 ]
@@ -125,7 +124,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": 100,
 }
 
 
@@ -139,17 +138,18 @@ if DEBUG:
                 "rest_framework_simplejwt.authentication.JWTAuthentication",
                 "rest_framework.authentication.SessionAuthentication",
             ],
-            "DEFAULT_RENDERER_CLASSES": [
-                "rest_framework.renderers.JSONRenderer",
-                "rest_framework.renderers.BrowsableAPIRenderer",
-            ],
         }
     )
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    }
+
 
 # Constants
 
 LEN_COMFIRM_CODE = 16
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-}
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

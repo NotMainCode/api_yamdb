@@ -7,15 +7,13 @@ from users.models import User
 
 class Categories(models.Model):
     name = models.CharField(
-        max_length=256,
-        verbose_name="Категория",
-        help_text="Укажите категорию"
+        max_length=256, verbose_name="Категория", help_text="Укажите категорию"
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
         verbose_name="URL категории",
-        help_text="Укажите URL категории"
+        help_text="Укажите URL категории",
     )
 
     objects = models.Manager()
@@ -26,15 +24,13 @@ class Categories(models.Model):
 
 class Genres(models.Model):
     name = models.CharField(
-        max_length=256,
-        verbose_name="Жанр",
-        help_text="Укажите жанр"
+        max_length=256, verbose_name="Жанр", help_text="Укажите жанр"
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
         verbose_name="URL жанра",
-        help_text="Укажите URL жанра"
+        help_text="Укажите URL жанра",
     )
 
     objects = models.Manager()
@@ -45,13 +41,10 @@ class Genres(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256,
-        verbose_name="Название",
-        help_text="Укажите название"
+        max_length=256, verbose_name="Название", help_text="Укажите название"
     )
     year = models.IntegerField(
-        verbose_name="Год выпуска",
-        help_text="Укажите год выпуска"
+        verbose_name="Год выпуска", help_text="Укажите год выпуска"
     )
 
     # rating = models.ForeignKey(
@@ -66,20 +59,20 @@ class Title(models.Model):
         null=True,
         blank=True,
         verbose_name="Описание",
-        help_text="Укажите описание (необязательно к заполнению)"
+        help_text="Укажите описание (необязательно к заполнению)",
     )
     genre = models.ManyToManyField(
         Genres,
         verbose_name="Жанр",
         help_text="Выберите жанр",
-        related_name='title'
+        related_name="title",
     )
     category = models.ForeignKey(
         Categories,
         on_delete=models.DO_NOTHING,
         verbose_name="Категория",
         help_text="Выберите категорию",
-        related_name='title'
+        related_name="title",
     )
 
     objects = models.Manager()
@@ -112,8 +105,7 @@ class Review(models.Model):
         ordering = ["pub_date"]
         constraints = [
             models.UniqueConstraint(
-                fields=["title", "author"],
-                name='unique_review'
+                fields=["title", "author"], name="unique_review"
             ),
         ]
 

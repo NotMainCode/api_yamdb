@@ -8,12 +8,12 @@ class User(AbstractUser):
     """Modified model User."""
 
     ROLE_OPTIONS = (
-        ("User", "User"),
-        ("Moderator", "Moderator"),
-        ("Admin", "Admin"),
+        ("user", "User"),
+        ("moderator", "Moderator"),
+        ("admin", "Admin"),
     )
     role = models.CharField(
-        "Role", max_length=1, choices=ROLE_OPTIONS, default="User"
+        "Role", max_length=9, choices=ROLE_OPTIONS, default="user"
     )
     email = models.EmailField(blank=False, unique=True)
     first_name = models.CharField("First name", max_length=150, blank=True)
@@ -24,3 +24,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        ordering = ["username"]

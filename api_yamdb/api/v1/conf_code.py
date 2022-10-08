@@ -12,9 +12,8 @@ from users.models import User
 def make_conf_code(email):
     user = User.objects.get(email=email)
     conf_code = token_hex(LEN_COMFIRM_CODE)
-    conf_code = "12345678123456781234567812345678"
     user.confirmation_code = make_password(conf_code)
-    user.password = user.confirmation_code
+    user.is_active = True
     user.save()
     send_mail(
         "Confirmation code",

@@ -10,45 +10,45 @@ from users.models import User
 
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Categories
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Genres
 
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        slug_field='slug',
+        slug_field="slug",
         queryset=Genres.objects.all(),
         many=True,
-        required=True
+        required=True,
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug',
+        slug_field="slug",
         queryset=Categories.objects.all(),
         many=False,
-        required=True
+        required=True,
     )
 
     class Meta:
-        fields = ('id',
-                  'name',
-                  'year',
-                  # 'rating',
-                  'description',
-                  'genre',
-                  'category')
+        fields = (
+            "id",
+            "name",
+            "year",
+            # 'rating',
+            "description",
+            "genre",
+            "category",
+        )
         model = Title
 
     def validate_year(self, value):
         if value > dt.datetime.now().year:
-            raise serializers.ValidationError(
-                'Укажите корректную дату'
-            )
+            raise serializers.ValidationError("Укажите корректную дату")
         return value
 
 
@@ -64,6 +64,11 @@ class UsersSerializer(serializers.ModelSerializer):
         )
         model = User
 
+    def validate_username(self, value):
+        if value.lower() == "me":
+            raise serializers.ValidationError("The name 'me' is not allowed.")
+        return value
+
 
 class UsersNameSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,6 +80,7 @@ class UsersNameSerializer(serializers.ModelSerializer):
             "bio",
             "role",
         )
+        read_only_fields = ("username", "email")
         model = User
 
 
@@ -100,6 +106,7 @@ class UsersMePatchSerializer(serializers.ModelSerializer):
             "last_name",
             "bio",
         )
+        read_only_fields = ("username", "email")
         model = User
 
 
@@ -111,17 +118,19 @@ class SignUpSerializer(serializers.Serializer):
         return User.objects.get_or_create(**validated_data)
 
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        if User.objects.filter(email=value, is_active=True).exists():
             raise serializers.ValidationError(
                 f"Another user is already using mail: {value}."
             )
         return value
 
     def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
+        if User.objects.filter(username=value, is_active=True).exists():
             raise serializers.ValidationError(
                 f"User named '{value}' already exists."
             )
+        if value.lower() == "me":
+            raise serializers.ValidationError("The name 'me' is not allowed.")
         return value
 
 
