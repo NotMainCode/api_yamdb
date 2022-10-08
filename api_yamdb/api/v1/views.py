@@ -34,27 +34,14 @@ from users.models import User
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-
-
-# class CategoriesList(generics.ListCreateAPIView):
-#     queryset = Categories.objects.all()
-#     serializer_class = CategoriesSerializer
-#
-#
-# class CategoriesDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Categories.objects.all()
-#     serializer_class = CategoriesSerializer
-#
-#     def perform_destroy(self, instance):(self,instance):
-#         instance = self.get_object()
-#         return
-#     # lookup_field = ['slug']
+    lookup_field = 'slug'
 
 
 class GenresViewSet(viewsets.ModelViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -65,6 +52,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    # permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))

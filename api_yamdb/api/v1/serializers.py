@@ -1,5 +1,7 @@
 """Serializers of the 'api' application."""
 
+import datetime as dt
+
 from rest_framework import serializers
 
 from reviews.models import Categories, Comment, Genres, Review, Title
@@ -7,36 +9,78 @@ from users.models import User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    # slug = serializers.SlugRelatedField(
-    #     queryset=Categories.objects.all(),
-    #     slug_field='slug',
-    #     # read_only=True
-    # )
-
     class Meta:
-        # fields = '__all__'
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
         model = Categories
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("name", "slug")
+        fields = ('name', 'slug')
         model = Genres
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
     class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            # 'rating',
-            "description",
-            "genre",
-            "category",
-        )
+        model = Review
+        fields = "__all__"
+
+    def validate(self, data):
+        return data
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genres.objects.all(),
+        many=True,
+        required=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Categories.objects.all(),
+        many=False,
+        required=True
+    )
+
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  # 'rating',
+                  'description',
+                  'genre',
+                  'category')
         model = Title
+
+    def validate_year(self, value):
+        if value > dt.datetime.now().year:
+            raise serializers.ValidationError(
+                'Укажите корректную дату'
+            )
+        return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+    def validate(self, attrs):
+        pass
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -129,34 +173,3 @@ class GetTokenSerializer(serializers.Serializer):
                 "Ensure that confirmation code contain 32 characters."
             )
         return value
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field="name",
-        read_only=True,
-    )
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
-
-    class Meta:
-        model = Review
-        fields = "__all__"
-
-    def validate(self, attrs):
-        pass
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
-
-    class Meta:
-        model = Comment
-        fields = "__all__"
-
-    def validate(self, attrs):
-        pass
