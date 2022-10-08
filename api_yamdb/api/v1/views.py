@@ -33,9 +33,9 @@ class UsersViewset(CreateListViewSet):
 
     def perform_create(self, serializer):
         if serializer.validated_data.get("role") == "admin":
-            serializer.save(is_staff=True)
+            serializer.save(is_staff=True, is_active=False)
             return
-        serializer.save()
+        serializer.save(is_active=False)
 
 
 class UsersNameViewset(RetrieveUpdateDestroyViewSet):

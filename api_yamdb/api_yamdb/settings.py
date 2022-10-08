@@ -149,3 +149,7 @@ if DEBUG:
 # Constants
 
 LEN_COMFIRM_CODE = 16
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
