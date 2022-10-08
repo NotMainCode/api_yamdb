@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.v1.permissions import IsAuthorOrReadOnly
 from api.v1.serializers import (
     CategoriesSerializer,
     CommentSerializer,
@@ -52,7 +53,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    # permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))

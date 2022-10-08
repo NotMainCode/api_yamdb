@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
-    "django_filters",
+    # "django_filters",
     "reviews",
     "api",
 ]
@@ -146,7 +146,6 @@ if DEBUG:
         }
     )
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
 
 # Constants
 

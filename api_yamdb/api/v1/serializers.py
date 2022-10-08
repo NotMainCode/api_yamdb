@@ -20,23 +20,6 @@ class GenresSerializer(serializers.ModelSerializer):
         model = Genres
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field="name",
-        read_only=True,
-    )
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
-
-    class Meta:
-        model = Review
-        fields = "__all__"
-
-    def validate(self, data):
-        return data
-
-
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='slug',
@@ -173,3 +156,34 @@ class GetTokenSerializer(serializers.Serializer):
                 "Ensure that confirmation code contain 32 characters."
             )
         return value
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+    def validate(self, data):
+        return data
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+    def validate(self, data):
+        return data
