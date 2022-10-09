@@ -8,9 +8,9 @@ class User(AbstractUser):
     """Modified model User."""
 
     ROLE_OPTIONS = (
-        ("user", "User"),
-        ("moderator", "Moderator"),
-        ("admin", "Admin"),
+        ("user", "user"),
+        ("moderator", "moderator"),
+        ("admin", "admin"),
     )
     role = models.CharField(
         "Role", max_length=9, choices=ROLE_OPTIONS, default="user"
@@ -27,3 +27,8 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ["username"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["username", "email"], name="unique_user"
+            ),
+        ]

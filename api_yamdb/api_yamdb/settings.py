@@ -117,10 +117,10 @@ AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAdminUser",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 100,
@@ -141,9 +141,8 @@ if DEBUG:
     )
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     SIMPLE_JWT = {
-        "ACCESS_TOKEN_LIFETIME": timedelta(days = 1),
+        "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     }
-
 
 
 # Constants
@@ -151,5 +150,5 @@ if DEBUG:
 LEN_COMFIRM_CODE = 16
 
 INTERNAL_IPS = [
-    '127.0.0.1',
+    "127.0.0.1",
 ]

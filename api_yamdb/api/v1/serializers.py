@@ -1,6 +1,7 @@
 """Serializers of the 'api' application."""
 
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound
 
 from users.models import User
 
@@ -58,8 +59,9 @@ class UsersMePatchSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "bio",
+            "role",
         )
-        read_only_fields = ("username", "email")
+        read_only_fields = ("username", "email", "role")
         model = User
 
 
@@ -71,14 +73,14 @@ class SignUpSerializer(serializers.Serializer):
         return User.objects.get_or_create(**validated_data)
 
     def validate_email(self, value):
-        if User.objects.filter(email=value, is_active=True).exists():
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
                 f"Another user is already using mail: {value}."
             )
         return value
 
     def validate_username(self, value):
-        if User.objects.filter(username=value, is_active=True).exists():
+        if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
                 f"User named '{value}' already exists."
             )
@@ -93,9 +95,7 @@ class GetTokenSerializer(serializers.Serializer):
 
     def validate_username(self, value):
         if not User.objects.filter(username=value).exists():
-            raise serializers.ValidationError(
-                f"The user named '{value}' does not exist."
-            )
+            raise NotFound(detail=f"The user named '{value}' does not exist.")
         return value
 
     def validate_confirmation_code(self, value):

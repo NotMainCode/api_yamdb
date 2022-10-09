@@ -3,11 +3,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, serializers, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v1.conf_code import check_conf_code, make_conf_code
+from api.v1.permissions import IsSuperuserOrAdminRole
 from api.v1.serializers import (
     GetTokenSerializer,
     SignUpSerializer,
@@ -27,31 +28,22 @@ from users.models import User
 class UsersViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsSuperuserOrAdminRole,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
 
     def perform_create(self, serializer):
-        if serializer.validated_data.get("role") == "admin":
-            serializer.save(is_staff=True, is_active=False)
-            return
-        serializer.save(is_active=False)
+        serializer.save()
 
 
 class UsersNameViewset(RetrieveUpdateDestroyViewSet):
     queryset = User.objects.all()
     serializer_class = UsersNameSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsSuperuserOrAdminRole,)
     lookup_field = "username"
 
-    def perform_update(self, serializer):
-        if serializer.validated_data.get("role") == "admin":
-            serializer.save(is_staff=True)
-            return
-        serializer.save()
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
+    def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.is_superuser:
             raise serializers.ValidationError(
@@ -60,14 +52,8 @@ class UsersNameViewset(RetrieveUpdateDestroyViewSet):
                     f"to modify user data: {instance.username}"
                 }
             )
-        serializer = self.get_serializer(
-            instance, data=request.data, partial=partial
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        if getattr(instance, "_prefetched_objects_cache", None):
-            instance._prefetched_objects_cache = {}
-        return Response(serializer.data)
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
 
 class UsersMeViewset(RetrieveUpdate):
@@ -108,4 +94,4 @@ def get_token(request):
         return Response(
             {"access_token": str(access_token)}, status=status.HTTP_201_CREATED
         )
-    return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

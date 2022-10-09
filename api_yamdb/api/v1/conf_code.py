@@ -13,10 +13,9 @@ def make_conf_code(email):
     user = User.objects.get(email=email)
     conf_code = token_hex(LEN_COMFIRM_CODE)
     user.confirmation_code = make_password(conf_code)
-    user.is_active = True
     user.save()
     send_mail(
-        "Confirmation code",
+        "YaMDb confirmation code",
         f"Use this code to get an access token: {conf_code}",
         "api_yamdb",
         (email,),
