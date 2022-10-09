@@ -2,8 +2,9 @@
 
 import datetime as dt
 
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
+from rest_framework import permissions
 from reviews.models import Categories, Comment, Genres, Review, Title
 from users.models import User
 
@@ -14,6 +15,12 @@ class CategoriesSerializer(serializers.ModelSerializer):
         model = Categories
 
 
+class CategoriesSerializerAdd(serializers.ModelSerializer):
+    class Meta:
+        fields = ("name",)
+        model = Categories
+
+
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("name", "slug")
@@ -21,6 +28,29 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    genre = GenresSerializer(many=True,)
+    category = CategoriesSerializer()
+
+
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "year",
+            # 'rating',
+            "description",
+            "genre",
+            "category",
+        )
+        model = Title
+
+    def validate_year(self, value):
+        if value > dt.datetime.now().year:
+            raise serializers.ValidationError("Укажите корректную дату")
+        return value
+
+
+class TitleSerializerAdd(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field="slug",
         queryset=Genres.objects.all(),
@@ -39,7 +69,6 @@ class TitleSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "year",
-            # 'rating',
             "description",
             "genre",
             "category",

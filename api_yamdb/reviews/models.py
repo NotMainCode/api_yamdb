@@ -21,6 +21,11 @@ class Categories(models.Model):
     def __str__(self):
         return self.name
 
+    # class Meta:
+    #     constraints = (
+    #         models.UniqueConstraint(fields=('slug',),
+    #                                 name='unique_categories_slug'))
+
 
 class Genres(models.Model):
     name = models.CharField(
@@ -47,13 +52,6 @@ class Title(models.Model):
         verbose_name="Год выпуска", help_text="Укажите год выпуска"
     )
 
-    # rating = models.ForeignKey(
-    #     'Review',
-    #     null=True,
-    #     blank=True,
-    #     on_delete=models.SET_NULL,
-    #     related_name="reviews",
-    # )
     description = models.CharField(
         max_length=256,
         null=True,
@@ -76,6 +74,9 @@ class Title(models.Model):
     )
 
     objects = models.Manager()
+
+    class Meta:
+        ordering = ["name"]
 
 
 class Review(models.Model):

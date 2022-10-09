@@ -1,15 +1,17 @@
 """URLs request handlers of the 'api' application."""
-
+import django_filters
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v1.conf_code import check_conf_code, make_conf_code
-from api.v1.permissions import IsAuthorOrReadOnly
+from api.v1.filters import GenresFilter
+from api.v1.permissions import IsAuthorOrReadOnly, IsRoleAdmin, ReadOnlyOrAdmin, IsAdminOrReadOnly
 from api.v1.serializers import (
     CategoriesSerializer,
     CommentSerializer,
@@ -18,6 +20,7 @@ from api.v1.serializers import (
     ReviewSerializer,
     SignUpSerializer,
     TitleSerializer,
+    TitleSerializerAdd,
     UsersMeGetSerializer,
     UsersMePatchSerializer,
     UsersNameSerializer,
@@ -36,6 +39,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     lookup_field = "slug"
+    permission_classes = (ReadOnlyOrAdmin,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
 
 
 class GenresViewSet(viewsets.ModelViewSet):
@@ -44,11 +50,27 @@ class GenresViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     lookup_field = "slug"
 
+    search_fields = ("slug",)
+    permission_classes = (ReadOnlyOrAdmin,)
+    filter_backends = (filters.SearchFilter,)
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdminOrReadOnly,)
+    # filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    # filter_backends = (DjangoFilterBackend,)
+    filter_class = GenresFilter
+
+    # filterset_fields = ("genre",)
+
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSerializer
+        return TitleSerializerAdd
+
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -82,14 +104,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 class UsersViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAdminUser,)
+    # permission_classes = (IsAdminUser,)
+    permission_classes = (IsRoleAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
 
     def perform_create(self, serializer):
         if serializer.validated_data.get("role") == "admin":
             serializer.save(is_staff=True, is_active=False)
-            return
+            return Response(status=status.HTTP_201_CREATED)
         serializer.save(is_active=False)
 
 
