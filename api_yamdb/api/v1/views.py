@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v1.conf_code import check_conf_code, make_conf_code
-from api.v1.filters import GenresFilter
+from api.v1.filters import TitleFilter
 from api.v1.permissions import IsAuthorOrReadOnly, IsRoleAdmin, ReadOnlyOrAdmin, IsAdminOrReadOnly
 from api.v1.serializers import (
     CategoriesSerializer,
@@ -25,6 +25,7 @@ from api.v1.serializers import (
     UsersMePatchSerializer,
     UsersNameSerializer,
     UsersSerializer,
+    # CategoriesSerializerAdd,
 )
 from api.viewsets import (
     CreateListViewSet,
@@ -50,7 +51,7 @@ class GenresViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     lookup_field = "slug"
 
-    search_fields = ("slug",)
+    search_fields = ("name",)
     permission_classes = (ReadOnlyOrAdmin,)
     filter_backends = (filters.SearchFilter,)
 
@@ -58,12 +59,10 @@ class GenresViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
-    # filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     # filter_backends = (DjangoFilterBackend,)
-    filter_class = GenresFilter
-
-    # filterset_fields = ("genre",)
+    filter_class = TitleFilter
 
 
     def get_serializer_class(self):

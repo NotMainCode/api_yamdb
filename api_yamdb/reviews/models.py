@@ -21,6 +21,9 @@ class Categories(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ("name", "slug",)
+
     # class Meta:
     #     constraints = (
     #         models.UniqueConstraint(fields=('slug',),
@@ -42,6 +45,9 @@ class Genres(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ("name", "slug",)
 
 
 class Title(models.Model):
@@ -77,6 +83,9 @@ class Title(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
