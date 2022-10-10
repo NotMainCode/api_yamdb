@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework import permissions
 from reviews.models import Categories, Comment, Genres, Review, Title
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 
 from users.models import User
 
@@ -197,6 +197,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(title=title, author=author).exists():
+                raise ValidationError('Вы можете оставить только один отзыв к этому произведению')
         return data
 
 

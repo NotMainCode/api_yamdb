@@ -24,11 +24,6 @@ class Categories(models.Model):
     class Meta:
         ordering = ("name", "slug",)
 
-    # class Meta:
-    #     constraints = (
-    #         models.UniqueConstraint(fields=('slug',),
-    #                                 name='unique_categories_slug'))
-
 
 class Genres(models.Model):
     name = models.CharField(
