@@ -42,7 +42,6 @@ class UsersNameViewset(RetrieveUpdateDestroyViewSet):
     permission_classes = (IsSuperuserOrAdminRole,)
     lookup_field = "username"
 
-
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.is_superuser:
@@ -52,7 +51,7 @@ class UsersNameViewset(RetrieveUpdateDestroyViewSet):
                     f"to modify user data: {instance.username}"
                 }
             )
-        kwargs['partial'] = True
+        kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
 
 
