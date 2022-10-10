@@ -1,33 +1,25 @@
 import django_filters
-from reviews.models import Title, Genres, Categories
+from django_filters import CharFilter, ModelChoiceFilter
+
+from reviews.models import Categories, Genres, Title
 
 
 class TitleFilter(django_filters.FilterSet):
-    # name = django_filters.FilterSet()
-    genre = django_filters.ModelChoiceFilter(field_name='genre',
-                                             to_field_name='slug',
-                                             queryset=Genres.objects.all())
-    category = django_filters.ModelChoiceFilter(field_name='category',
-                                                to_field_name='slug',
-                                                queryset=Categories.objects.all())
+    name = CharFilter(lookup_expr="icontains")
+    category = ModelChoiceFilter(
+        field_name="category",
+        to_field_name="slug",
+        # lookup_expr="exact",
+        queryset=Categories.objects.all(),
+    )
+    genre = ModelChoiceFilter(
+        field_name="genre",
+        to_field_name="slug",
+        # lookup_expr="exact",
+        queryset=Genres.objects.all(),
+    )
+    year = CharFilter()
 
     class Meta:
         model = Title
-        fields = ('name', 'genre', 'category', 'year')
-
-
-# class TitleNameFilter(django_filters.FilterSet):
-#     class Meta:
-#         model = Title
-#         fields = ('name',)
-
-#
-# class CategoriesFilter(django_filters.FilterSet):
-#     category = django_filters.ModelChoiceFilter(field_name='category',
-#                                                 to_field_name='slug',
-#                                                 queryset=Categories.objects.all())
-#
-#     class Meta:
-#         model = Title
-#         fields = ('category',)
-
+        fields = ["name", "category", "genre", "year"]

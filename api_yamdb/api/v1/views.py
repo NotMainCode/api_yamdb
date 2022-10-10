@@ -1,21 +1,21 @@
 """URLs request handlers of the 'api' application."""
 
-import django_filters
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v1.conf_code import check_conf_code, make_conf_code
 from api.v1.filters import TitleFilter
-from api.v1.permissions import (ReadOnlyOrAdmin, IsAdminOrReadOnly,
-                                IsAdminModeratorAuthorOrReadOnly)
-from api.v1.permissions import IsSuperuserOrAdminRole
+from api.v1.permissions import (
+    IsAdminModeratorAuthorOrReadOnly,
+    IsAdminOrReadOnly,
+    IsSuperuserOrAdminRole,
+    ReadOnlyOrAdmin,
+)
 from api.v1.serializers import (
     CategoriesSerializer,
     CommentSerializer,
@@ -54,7 +54,6 @@ class GenresViewSet(viewsets.ModelViewSet):
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     lookup_field = "slug"
-
     search_fields = ("name",)
     permission_classes = (ReadOnlyOrAdmin,)
     filter_backends = (filters.SearchFilter,)
@@ -63,22 +62,19 @@ class GenresViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    # filter_backends = (DjangoFilterBackend,)
     filter_class = TitleFilter
 
-
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ("list", "retrieve"):
             return TitleSerializer
         return TitleSerializerAdd
 
 
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAdminModeratorAuthorOrReadOnly,]
+    permission_classes = [
+        IsAdminModeratorAuthorOrReadOnly,
+    ]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -92,7 +88,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAdminModeratorAuthorOrReadOnly, ]
+    permission_classes = [
+        IsAdminModeratorAuthorOrReadOnly,
+    ]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))

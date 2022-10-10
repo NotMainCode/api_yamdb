@@ -22,7 +22,10 @@ class Categories(models.Model):
         return self.name
 
     class Meta:
-        ordering = ("name", "slug",)
+        ordering = (
+            "name",
+            "slug",
+        )
 
 
 class Genres(models.Model):
@@ -42,7 +45,10 @@ class Genres(models.Model):
         return self.name
 
     class Meta:
-        ordering = ("name", "slug",)
+        ordering = (
+            "name",
+            "slug",
+        )
 
 
 class Title(models.Model):
