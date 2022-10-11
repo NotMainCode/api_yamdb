@@ -38,20 +38,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         ) or obj.author == request.user
 
 
-class ReadOnlyOrAdmin(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS or (
-            request.user.is_authenticated and request.user.role == "admin"
-        )
-
-
-class IsRoleAdmin(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "admin"
-
-
-class IsAdminOrReadOnly(permissions.BasePermission):
-
+class IsAdminRoleSuperUserOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS) or (
             request.user.is_authenticated
@@ -68,9 +55,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         )
 
 
-class IsSuperuserOrAdminRole(permissions.BasePermission):
-    """Permission to act to superuser or user with the "admin" role."""
-
+class IsAdminRoleOrSuperUser(permissions.BasePermission):
     message = "You do not have permission to perform this action."
 
     def has_permission(self, request, view):

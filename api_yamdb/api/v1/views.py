@@ -12,9 +12,8 @@ from api.v1.conf_code import check_conf_code, make_conf_code
 from api.v1.filters import TitleFilter
 from api.v1.permissions import (
     IsAdminModeratorAuthorOrReadOnly,
-    IsAdminOrReadOnly,
-    IsSuperuserOrAdminRole,
-    ReadOnlyOrAdmin,
+    IsAdminRoleSuperUserOrReadOnly,
+    IsAdminRoleOrSuperUser,
 )
 from api.v1.serializers import (
     CategoriesSerializer,
@@ -31,9 +30,10 @@ from api.v1.serializers import (
     UsersSerializer,
 )
 from api.viewsets import (
+    CreateListDeleteViewSet,
     CreateListViewSet,
     RetrieveUpdate,
-    RetrieveUpdateDestroyViewSet, CreateListDeleteViewSet,
+    RetrieveUpdateDestroyViewSet,
 )
 from reviews.models import Categories, Genres, Review, Title
 from users.models import User
@@ -43,7 +43,7 @@ class CategoriesViewSet(CreateListDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     lookup_field = "slug"
-    permission_classes = (ReadOnlyOrAdmin,)
+    permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
 
@@ -53,13 +53,13 @@ class GenresViewSet(CreateListDeleteViewSet):
     serializer_class = GenresSerializer
     lookup_field = "slug"
     search_fields = ("name",)
-    permission_classes = (ReadOnlyOrAdmin,)
+    permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = TitleFilter
 
@@ -101,18 +101,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 class UsersViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsSuperuserOrAdminRole,)
+    permission_classes = (IsAdminRoleOrSuperUser,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
-
-    def perform_create(self, serializer):
-        serializer.save()
 
 
 class UsersNameViewset(RetrieveUpdateDestroyViewSet):
     queryset = User.objects.all()
     serializer_class = UsersNameSerializer
-    permission_classes = (IsSuperuserOrAdminRole,)
+    permission_classes = (IsAdminRoleOrSuperUser,)
     lookup_field = "username"
 
     def partial_update(self, request, *args, **kwargs):
@@ -142,18 +139,20 @@ class UsersMeViewset(RetrieveUpdate):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes((AllowAny,))
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        make_conf_code(request.data["email"])
+        email = request.data["email"]
+        if not User.objects.filter(email=email).exists():
+            serializer.save(email_confirmed=True)
+        make_conf_code(email)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes((AllowAny,))
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     if serializer.is_valid():
@@ -163,6 +162,8 @@ def get_token(request):
                 {"confirmation_code": "Confirmation code is incorrect."}
             )
         access_token = RefreshToken.for_user(user).access_token
+        user.email_confirmed = True
+        user.save()
         return Response(
             {"access_token": str(access_token)}, status=status.HTTP_201_CREATED
         )

@@ -3,13 +3,19 @@
 from rest_framework.routers import DefaultRouter, Route
 
 
-class RouterUserWithoutPK(DefaultRouter):
+class RouterWithoutPKandPUT(DefaultRouter):
     routes = (
+        Route(
+            url=r"^{prefix}{trailing_slash}$",
+            mapping={"get": "list", "post": "create"},
+            name="{basename}-list",
+            detail=False,
+            initkwargs={"suffix": "List"},
+        ),
         Route(
             url=r"^{prefix}{trailing_slash}$",
             mapping={
                 "get": "retrieve",
-                "put": "update",
                 "patch": "partial_update",
                 "delete": "destroy",
             },
