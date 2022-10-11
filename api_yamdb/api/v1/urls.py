@@ -3,7 +3,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.routers import RouterWithoutPK
+from api.routers import RouterUserWithoutPK
 from api.v1.views import (
     CategoriesViewSet,
     CommentViewSet,
@@ -20,7 +20,7 @@ from api.v1.views import (
 app_name = "api"
 
 router_v1 = DefaultRouter()
-router_v1_without_pk = RouterWithoutPK()
+router_v1_without_pk = RouterUserWithoutPK()
 
 router_v1.register(r"users", UsersViewset, basename="users")
 router_v1_without_pk.register(r"users/me", UsersMeViewset, basename="users_me")

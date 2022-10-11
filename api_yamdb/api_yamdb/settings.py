@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'django_filters',
+    "django_filters",
     "rest_framework_simplejwt",
     "reviews",
     "api",
@@ -126,7 +126,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 4,
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
 }
 
 
@@ -155,3 +157,8 @@ LEN_COMFIRM_CODE = 16
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+# django-filter settings
+
+FILTERS_DEFAULT_LOOKUP_EXPR = "exact"

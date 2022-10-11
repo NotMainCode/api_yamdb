@@ -3,7 +3,7 @@
 from rest_framework.routers import DefaultRouter, Route
 
 
-class RouterWithoutPK(DefaultRouter):
+class RouterUserWithoutPK(DefaultRouter):
     routes = (
         Route(
             url=r"^{prefix}{trailing_slash}$",
