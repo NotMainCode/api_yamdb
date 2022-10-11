@@ -9,13 +9,11 @@ class TitleFilter(django_filters.FilterSet):
     category = ModelChoiceFilter(
         field_name="category",
         to_field_name="slug",
-        # lookup_expr="exact",
         queryset=Categories.objects.all(),
     )
     genre = ModelChoiceFilter(
         field_name="genre",
         to_field_name="slug",
-        # lookup_expr="exact",
         queryset=Genres.objects.all(),
     )
     year = CharFilter()
