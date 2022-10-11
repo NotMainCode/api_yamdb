@@ -28,3 +28,12 @@ class RetrieveUpdate(
 ):
     http_method_names = ("get", "post", "patch", "delete", "head", "options")
     pass
+
+
+class CreateListDeleteViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    pass

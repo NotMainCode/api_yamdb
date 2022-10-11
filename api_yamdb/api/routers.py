@@ -18,4 +18,3 @@ class RouterWithoutPK(DefaultRouter):
             initkwargs={"suffix": "Instance"},
         ),
     )
-

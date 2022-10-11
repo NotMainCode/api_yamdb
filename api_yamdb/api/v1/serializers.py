@@ -2,6 +2,7 @@
 
 import datetime as dt
 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework import permissions
@@ -27,29 +28,6 @@ class GenresSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("name", "slug")
         model = Genres
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenresSerializer(many=True,)
-    category = CategoriesSerializer()
-
-
-    class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            # 'rating',
-            "description",
-            "genre",
-            "category",
-        )
-        model = Title
-
-    def validate_year(self, value):
-        if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Укажите корректную дату")
-        return value
 
 
 class TitleSerializerAdd(serializers.ModelSerializer):
@@ -219,3 +197,29 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         return data
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenresSerializer(many=True,)
+    category = CategoriesSerializer()
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, ob):
+        return ob.reviews.all().aggregate(Avg('score'))['score__avg']
+
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "year",
+            'rating',
+            "description",
+            "genre",
+            "category",
+        )
+        model = Title
+
+    def validate_year(self, value):
+        if value > dt.datetime.now().year:
+            raise serializers.ValidationError("Укажите корректную дату")
+        return value

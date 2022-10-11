@@ -29,18 +29,17 @@ from api.v1.serializers import (
     UsersMePatchSerializer,
     UsersNameSerializer,
     UsersSerializer,
-    # CategoriesSerializerAdd,
 )
 from api.viewsets import (
     CreateListViewSet,
     RetrieveUpdate,
-    RetrieveUpdateDestroyViewSet,
+    RetrieveUpdateDestroyViewSet, CreateListDeleteViewSet,
 )
 from reviews.models import Categories, Genres, Review, Title
 from users.models import User
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+class CategoriesViewSet(CreateListDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     lookup_field = "slug"
@@ -49,12 +48,10 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     search_fields = ("name",)
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(CreateListDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
-    pagination_class = LimitOffsetPagination
     lookup_field = "slug"
-
     search_fields = ("name",)
     permission_classes = (ReadOnlyOrAdmin,)
     filter_backends = (filters.SearchFilter,)
@@ -63,17 +60,13 @@ class GenresViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    # filter_backends = (DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filter_class = TitleFilter
-
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
         return TitleSerializerAdd
-
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
