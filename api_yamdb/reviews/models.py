@@ -1,5 +1,6 @@
 """Database settings of the 'Reviews' application."""
 
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from users.models import User
@@ -106,17 +107,25 @@ class Review(models.Model):
         verbose_name="Автор отзыва",
     )
     score = models.PositiveIntegerField(
-        verbose_name="Оценка", help_text="Оцените произведение от 1 до 10"
+        verbose_name="Оценка",
+        help_text="Оцените произведение от 1 до 10",
+        validators=[
+            MinValueValidator(1, 'Введите оценку от 1 до 10'),
+            MaxValueValidator(10, 'Введите оценку от 1 до 10')
+        ]
     )
     pub_date = models.DateTimeField(
-        verbose_name="Дата отзыва", auto_now_add=True
+        verbose_name="Дата отзыва",
+        auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
         ordering = ["pub_date"]
         constraints = [
             models.UniqueConstraint(
-                fields=["title", "author"], name="unique_review"
+                fields=["title", "author"],
+                name="unique_review"
             ),
         ]
 
@@ -129,7 +138,8 @@ class Comment(models.Model):
         verbose_name="ID отзыва",
     )
     text = models.TextField(
-        verbose_name="Текст комментария", help_text="Введите текст комментария"
+        verbose_name="Текст комментария",
+        help_text="Введите текст комментария"
     )
     author = models.ForeignKey(
         User,
