@@ -73,19 +73,25 @@ class SignUpSerializer(serializers.Serializer):
         return User.objects.get_or_create(**validated_data)
 
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        if (
+            User.objects.filter(email=value).exists()
+            and User.objects.get(email=value).is_active
+        ):
             raise serializers.ValidationError(
                 f"Another user is already using mail: {value}."
             )
         return value
 
     def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
+        if value.lower() == "me":
+            raise serializers.ValidationError("The name 'me' is not allowed.")
+        if (
+            User.objects.filter(username=value).exists()
+            and User.objects.get(username=value).is_active
+        ):
             raise serializers.ValidationError(
                 f"User named '{value}' already exists."
             )
-        if value.lower() == "me":
-            raise serializers.ValidationError("The name 'me' is not allowed.")
         return value
 
 

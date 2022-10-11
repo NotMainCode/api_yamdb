@@ -3,12 +3,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, serializers, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.v1.conf_code import check_conf_code, make_conf_code
-from api.v1.permissions import IsSuperuserOrAdminRole
+from api.v1.permissions import IsAdminUserOrSuperUser
 from api.v1.serializers import (
     GetTokenSerializer,
     SignUpSerializer,
@@ -28,19 +28,28 @@ from users.models import User
 class UsersViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsSuperuserOrAdminRole,)
+    permission_classes = (IsAdminUserOrSuperUser,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
 
     def perform_create(self, serializer):
-        serializer.save()
+        if serializer.validated_data.get("role") == "admin":
+            serializer.save(is_staff=True, is_active=False)
+            return
+        serializer.save(is_active=False)
 
 
 class UsersNameViewset(RetrieveUpdateDestroyViewSet):
     queryset = User.objects.all()
     serializer_class = UsersNameSerializer
-    permission_classes = (IsSuperuserOrAdminRole,)
+    permission_classes = (IsAdminUser,)
     lookup_field = "username"
+
+    def perform_update(self, serializer):
+        if serializer.validated_data.get("role") == "admin":
+            serializer.save(is_staff=True)
+            return
+        serializer.save()
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -73,8 +82,10 @@ class UsersMeViewset(RetrieveUpdate):
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        make_conf_code(request.data["email"])
+        email = request.data["email"]
+        if not User.objects.filter(email=email).exists():
+            serializer.save()
+        make_conf_code(email)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -90,6 +101,8 @@ def get_token(request):
                 {"confirmation_code": "Confirmation code is incorrect."}
             )
         access_token = RefreshToken.for_user(user).access_token
+        user.is_active = True
+        user.save()
         return Response(
             {"access_token": str(access_token)}, status=status.HTTP_201_CREATED
         )

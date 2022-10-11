@@ -17,7 +17,6 @@ class RetrieveUpdateDestroyViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    http_method_names = ("get", "post", "patch", "delete", "head", "options")
     pass
 
 
@@ -26,5 +25,4 @@ class RetrieveUpdate(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
-    http_method_names = ("get", "post", "patch", "delete", "head", "options")
     pass
