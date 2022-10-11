@@ -13,6 +13,7 @@ class UserAdmin(admin.ModelAdmin):
         "pk",
         "username",
         "email",
+        "email_confirmed",
         "role",
         "first_name",
         "last_name",
@@ -20,4 +21,4 @@ class UserAdmin(admin.ModelAdmin):
     )
     list_editable = ("role",)
     search_fields = ("username",)
-    list_filter = ("role",)
+    list_filter = ("role", "email_confirmed")
