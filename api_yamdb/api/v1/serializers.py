@@ -60,6 +60,34 @@ class TitleSerializerAdd(serializers.ModelSerializer):
         return value
 
 
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenresSerializer(
+        many=True,
+    )
+    category = CategoriesSerializer()
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, ob):
+        return ob.reviews.all().aggregate(Avg("score"))["score__avg"]
+
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "year",
+            "rating",
+            "description",
+            "genre",
+            "category",
+        )
+        model = Title
+
+    def validate_year(self, value):
+        if value > dt.datetime.now().year:
+            raise serializers.ValidationError("Укажите корректную дату")
+        return value
+
+
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
@@ -199,31 +227,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenresSerializer(
-        many=True,
-    )
-    category = CategoriesSerializer()
-    rating = serializers.SerializerMethodField()
-
-    def get_rating(self, ob):
-        return ob.reviews.all().aggregate(Avg("score"))["score__avg"]
-
-    class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            "rating",
-            "description",
-            "genre",
-            "category",
-        )
-        model = Title
-
-    def validate_year(self, value):
-        if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Укажите корректную дату")
-        return value

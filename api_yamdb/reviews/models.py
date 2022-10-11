@@ -8,7 +8,9 @@ from users.models import User
 
 class Categories(models.Model):
     name = models.CharField(
-        max_length=256, verbose_name="Категория", help_text="Укажите категорию"
+        max_length=256,
+        verbose_name="Категория",
+        help_text="Укажите категорию"
     )
     slug = models.SlugField(
         unique=True,
@@ -31,7 +33,9 @@ class Categories(models.Model):
 
 class Genres(models.Model):
     name = models.CharField(
-        max_length=256, verbose_name="Жанр", help_text="Укажите жанр"
+        max_length=256,
+        verbose_name="Жанр",
+        help_text="Укажите жанр"
     )
     slug = models.SlugField(
         unique=True,
@@ -54,10 +58,13 @@ class Genres(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256, verbose_name="Название", help_text="Укажите название"
+        max_length=256,
+        verbose_name="Название",
+        help_text="Укажите название"
     )
     year = models.IntegerField(
-        verbose_name="Год выпуска", help_text="Укажите год выпуска"
+        verbose_name="Год выпуска",
+        help_text="Укажите год выпуска"
     )
 
     description = models.CharField(
