@@ -1,4 +1,4 @@
-# API of project "Yatube".
+# API of project "YaMDb".
 
 ## Description
 
