@@ -9,6 +9,7 @@ cursor = db.cursor()
 
 def FillCategories():
     """Fill test data in db table reviews_categories."""
+
     cursor.execute("DELETE FROM reviews_categories")
     with open(
         "static/data/category.csv", "r", encoding="utf8"
@@ -31,6 +32,7 @@ def FillGenres():
 
 def FillTitles():
     """Fill test data in db table reviews_title."""
+
     cursor.execute("DELETE FROM reviews_title")
     with open("static/data/titles.csv", "r", encoding="utf8") as title_data:
         dr = csv.DictReader(title_data, delimiter=";")
@@ -58,6 +60,7 @@ def FillGenreTitles():
 
 def FillReview():
     """Fill test data in db table reviews_review."""
+
     cursor.execute("DELETE FROM reviews_review")
     with open("static/data/review.csv", "r", encoding="utf8") as review_data:
         dr = csv.DictReader(review_data, delimiter=";")
@@ -80,6 +83,7 @@ def FillReview():
 
 def FillComments():
     """Fill test data in db table reviews_comment."""
+
     cursor.execute("DELETE FROM reviews_comment")
     with open(
         "static/data/comments.csv", "r", encoding="utf8"
@@ -97,6 +101,7 @@ def FillComments():
 
 def FillUsers():
     """Fill test data in db table users_user."""
+
     cursor.execute("DELETE FROM users_user WHERE username !='admin'")
     with open("static/data/users.csv", "r", encoding="utf8") as users_data:
         dr = csv.DictReader(users_data, delimiter=",")
