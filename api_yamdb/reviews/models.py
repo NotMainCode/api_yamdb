@@ -1,6 +1,6 @@
 """Database settings of the 'Reviews' application."""
 
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
@@ -9,14 +9,15 @@ from users.models import User
 class Categories(models.Model):
     name = models.CharField(
         max_length=256,
-        verbose_name="Категория",
-        help_text="Укажите категорию"
+        verbose_name="Category",
+        help_text="Enter a category",
+        db_index=True,
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        verbose_name="URL категории",
-        help_text="Укажите URL категории",
+        verbose_name="Category URL",
+        help_text="Enter the category URL",
     )
 
     objects = models.Manager()
@@ -34,14 +35,15 @@ class Categories(models.Model):
 class Genres(models.Model):
     name = models.CharField(
         max_length=256,
-        verbose_name="Жанр",
-        help_text="Укажите жанр"
+        verbose_name="Genre",
+        help_text="Enter the genre",
+        db_index=True,
     )
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        verbose_name="URL жанра",
-        help_text="Укажите URL жанра",
+        verbose_name="Genre URL",
+        help_text="Enter the genre URL",
     )
 
     objects = models.Manager()
@@ -59,32 +61,32 @@ class Genres(models.Model):
 class Title(models.Model):
     name = models.CharField(
         max_length=256,
-        verbose_name="Название",
-        help_text="Укажите название"
+        verbose_name="Title",
+        help_text="Enter the title",
+        db_index=True,
     )
     year = models.IntegerField(
-        verbose_name="Год выпуска",
-        help_text="Укажите год выпуска"
+        verbose_name="Release year", help_text="Enter the release year"
     )
 
     description = models.CharField(
         max_length=256,
         null=True,
         blank=True,
-        verbose_name="Описание",
-        help_text="Укажите описание (необязательно к заполнению)",
+        verbose_name="Description",
+        help_text="Enter a description (not necessary)",
     )
     genre = models.ManyToManyField(
         Genres,
-        verbose_name="Жанр",
-        help_text="Выберите жанр",
+        verbose_name="Genre",
+        help_text="Select a genre",
         related_name="title",
     )
     category = models.ForeignKey(
         Categories,
         on_delete=models.DO_NOTHING,
-        verbose_name="Категория",
-        help_text="Выберите категорию",
+        verbose_name="Category",
+        help_text="Select a category",
         related_name="title",
     )
 
@@ -102,27 +104,27 @@ class Review(models.Model):
         Title,
         on_delete=models.CASCADE,
         related_name="reviews",
-        verbose_name="ID произведения",
+        verbose_name="Creation ID",
     )
     text = models.TextField(
-        verbose_name="Текст отзыва", help_text="Напишите текст отзыва"
+        verbose_name="Review text", help_text="Write the review"
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="reviews",
-        verbose_name="Автор отзыва",
+        verbose_name="Review author",
     )
     score = models.PositiveIntegerField(
-        verbose_name="Оценка",
-        help_text="Оцените произведение от 1 до 10",
+        verbose_name="Rating",
+        help_text="Rate the creation from 1 to 10",
         validators=[
-            MinValueValidator(1, "Введите оценку от 1 до 10"),
-            MaxValueValidator(10, "Введите оценку от 1 до 10"),
+            MinValueValidator(1, "Enter a rating from 1 to 10"),
+            MaxValueValidator(10, "Enter a rating from 1 to 10"),
         ],
     )
     pub_date = models.DateTimeField(
-        verbose_name="Дата отзыва", auto_now_add=True, db_index=True
+        verbose_name="Review date", auto_now_add=True, db_index=True
     )
 
     class Meta:
@@ -139,20 +141,19 @@ class Comment(models.Model):
         Review,
         on_delete=models.CASCADE,
         related_name="comments",
-        verbose_name="ID отзыва",
+        verbose_name="Review ID",
     )
     text = models.TextField(
-        verbose_name="Текст комментария", help_text="Введите текст комментария"
+        verbose_name="Comment text", help_text="Enter the comment text"
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="comments",
-        verbose_name="Автор комментария",
+        verbose_name="Comment author",
     )
     pub_date = models.DateTimeField(
-        verbose_name="Дата комментария",
-        auto_now_add=True,
+        verbose_name="Comment date", auto_now_add=True, db_index=True
     )
 
     class Meta:

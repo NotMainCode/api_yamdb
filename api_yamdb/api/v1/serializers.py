@@ -29,6 +29,32 @@ class GenresSerializer(serializers.ModelSerializer):
         model = Genres
 
 
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenresSerializer(many=True)
+    category = CategoriesSerializer()
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, ob):
+        return ob.reviews.all().aggregate(Avg("score"))["score__avg"]
+
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "year",
+            "rating",
+            "description",
+            "genre",
+            "category",
+        )
+        model = Title
+
+    def validate_year(self, value):
+        if value > dt.datetime.now().year:
+            raise serializers.ValidationError("Please enter a valid date")
+        return value
+
+
 class TitleSerializerAdd(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field="slug",
@@ -56,36 +82,44 @@ class TitleSerializerAdd(serializers.ModelSerializer):
 
     def validate_year(self, value):
         if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Укажите корректную дату")
+            raise serializers.ValidationError("Please enter a valid date")
         return value
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenresSerializer(
-        many=True,
+class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
     )
-    category = CategoriesSerializer()
-    rating = serializers.SerializerMethodField()
 
-    def get_rating(self, ob):
-        return ob.reviews.all().aggregate(Avg("score"))["score__avg"]
+    def validate(self, data):
+        request = self.context["request"]
+        title = get_object_or_404(
+            Title, pk=self.context["view"].kwargs["title_id"]
+        )
+        if request.method == "POST":
+            if Review.objects.filter(
+                title=title, author=request.user
+            ).exists():
+                raise ValidationError(
+                    """You can only leave one review for this creation."""
+                )
+        return data
 
     class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            "rating",
-            "description",
-            "genre",
-            "category",
-        )
-        model = Title
+        model = Review
+        fields = "__all__"
 
-    def validate_year(self, value):
-        if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Укажите корректную дату")
-        return value
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -192,38 +226,3 @@ class GetTokenSerializer(serializers.Serializer):
                 "Ensure that confirmation code contain 32 characters."
             )
         return value
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(slug_field="name", read_only=True)
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
-
-    def validate(self, data):
-        request = self.context["request"]
-        author = request.user
-        title_id = self.context["view"].kwargs.get("title_id")
-        title = get_object_or_404(Title, pk=title_id)
-        if request.method == "POST":
-            if Review.objects.filter(title=title, author=author).exists():
-                raise ValidationError(
-                    """Вы можете оставить только
-                                        один отзыв к этому произведению"""
-                )
-        return data
-
-    class Meta:
-        model = Review
-        fields = "__all__"
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
-
-    class Meta:
-        model = Comment
-        fields = "__all__"

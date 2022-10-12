@@ -22,25 +22,25 @@ app_name = "api"
 router_v1 = DefaultRouter()
 router_users_v1 = RouterWithoutPKandPUT()
 
+router_v1.register(r"categories", CategoriesViewSet, basename="categories")
+router_v1.register(r"genres", GenresViewSet, basename="genres")
+
+router_v1.register(r"titles", TitleViewSet, basename="titles")
+router_v1.register(
+    r"titles/(?P<title_id>\d+)/reviews", ReviewViewSet, basename="reviews"
+)
+router_v1.register(
+    r"titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)" r"/comments",
+    CommentViewSet,
+    basename="comments",
+)
+
 router_users_v1.register(r"users", UsersViewset, basename="users")
 router_users_v1.register(r"users/me", UsersMeViewset, basename="users_me")
 router_users_v1.register(
     r"users/(?P<username>[\w.@+-]+)",
     UsersNameViewset,
     basename="users_name",
-)
-router_v1.register(r"categories", CategoriesViewSet, basename="categories")
-router_v1.register(r"genres", GenresViewSet, basename="genres")
-router_v1.register(r"titles", TitleViewSet, basename="titles")
-
-router_v1.register(
-    r"titles/(?P<title_id>\d+)/reviews", ReviewViewSet, basename="reviews"
-)
-
-router_v1.register(
-    r"titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)" r"/comments",
-    CommentViewSet,
-    basename="comments",
 )
 
 urlpatterns = [

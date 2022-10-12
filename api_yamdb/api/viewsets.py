@@ -11,9 +11,9 @@ class CreateListViewSet(
     pass
 
 
-class RetrieveUpdateDestroyViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
+class CreateListDeleteViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -28,10 +28,15 @@ class RetrieveUpdate(
     pass
 
 
-class CreateListDeleteViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
+class RetrieveUpdateDestroyViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    pass
+
+
+class ModelViewSetWithoutPUT(viewsets.ModelViewSet):
+    http_method_names = ("get", "post", "patch", "delete", "head", "options")
     pass

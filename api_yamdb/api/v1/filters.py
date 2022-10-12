@@ -18,7 +18,7 @@ class TitleFilter(django_filters.FilterSet):
         to_field_name="slug",
         queryset=Genres.objects.all(),
     )
-    year = CharFilter()
+    year = CharFilter(lookup_expr="exact")
 
     class Meta:
         model = Title

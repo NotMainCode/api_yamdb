@@ -1,8 +1,8 @@
 """URLs request handlers of the 'api' application."""
 
-import django_filters
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, serializers, status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -12,8 +12,8 @@ from api.v1.conf_code import check_conf_code, make_conf_code
 from api.v1.filters import TitleFilter
 from api.v1.permissions import (
     IsAdminModeratorAuthorOrReadOnly,
-    IsAdminRoleSuperUserOrReadOnly,
     IsAdminRoleOrSuperUser,
+    IsAdminRoleSuperUserOrReadOnly,
 )
 from api.v1.serializers import (
     CategoriesSerializer,
@@ -32,6 +32,7 @@ from api.v1.serializers import (
 from api.viewsets import (
     CreateListDeleteViewSet,
     CreateListViewSet,
+    ModelViewSetWithoutPUT,
     RetrieveUpdate,
     RetrieveUpdateDestroyViewSet,
 )
@@ -42,8 +43,8 @@ from users.models import User
 class CategoriesViewSet(CreateListDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    lookup_field = "slug"
     permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
+    lookup_field = "slug"
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
 
@@ -51,17 +52,19 @@ class CategoriesViewSet(CreateListDeleteViewSet):
 class GenresViewSet(CreateListDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
+    permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     lookup_field = "slug"
-    search_fields = ("name",)
-    permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
 
 
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+class TitleViewSet(ModelViewSetWithoutPUT):
+    queryset = Title.objects.select_related("category").prefetch_related(
+        "genre"
+    )
     permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = TitleFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -69,32 +72,31 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializerAdd
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ModelViewSetWithoutPUT):
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
-        return title.reviews.all()
+        title = get_object_or_404(Title, pk=self.kwargs["title_id"])
+        return title.reviews.select_related("author")
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get("title_id")
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(Title, id=self.kwargs["title_id"])
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ModelViewSetWithoutPUT):
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
-        return review.comments.all()
+        review = get_object_or_404(Review, pk=self.kwargs["review_id"])
+        return review.comments.select_related("author")
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get("title_id")
-        review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, id=review_id, title=title_id)
+        review = get_object_or_404(
+            Review, id=self.kwargs["review_id"], title=self.kwargs["title_id"]
+        )
         serializer.save(author=self.request.user, review=review)
 
 
