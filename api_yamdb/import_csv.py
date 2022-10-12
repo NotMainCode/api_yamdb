@@ -118,16 +118,17 @@ def FillUsers():
                 "",
                 True,
                 "",
+                i["role"],
                 i["email"],
+                False,
                 i["first_name"],
                 i["bio"],
                 "",
-                i["role"],
             )
             for i in dr
         ]
     cursor.executemany(
-        "INSERT INTO users_user VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);", to_db
+        "INSERT INTO users_user VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", to_db
     )
     db.commit()
 
