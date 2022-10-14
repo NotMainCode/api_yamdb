@@ -6,7 +6,7 @@ from django.db import models
 from users.models import User
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name="Category",
@@ -32,7 +32,7 @@ class Categories(models.Model):
         )
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name="Genre",
@@ -77,13 +77,13 @@ class Title(models.Model):
         help_text="Enter a description (not necessary)",
     )
     genre = models.ManyToManyField(
-        Genres,
+        Genre,
         verbose_name="Genre",
         help_text="Select a genre",
         related_name="title",
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.DO_NOTHING,
         verbose_name="Category",
         help_text="Select a category",
