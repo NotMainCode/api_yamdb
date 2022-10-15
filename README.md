@@ -69,6 +69,11 @@ Perform migrations
 py manage.py migrate
 ```
 
+Load test data (if you need)
+```
+py manage.py load_test_data
+```
+
 Run project
 ```
 py manage.py runserver 8008
