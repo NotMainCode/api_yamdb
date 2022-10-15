@@ -80,43 +80,38 @@ class TitleSerializerWrite(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Serializer for requests to endpoints of 'Reviews' resource."""
-
-    title = serializers.SlugRelatedField(slug_field="name", read_only=True)
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
     )
 
     def validate(self, data):
         request = self.context["request"]
-        title = get_object_or_404(
-            Title, pk=self.context["view"].kwargs["title_id"]
-        )
-        if request.method == "POST":
-            if Review.objects.filter(
-                title=title, author=request.user
-            ).exists():
-                raise ValidationError(
-                    """You can only leave one review for this creation."""
-                )
-        return data
+        title_id = self.context['request'].parser_context['kwargs']['title_id']
+        if request.method != "POST":
+            return data
+        if Review.objects.filter(
+            title=title_id, author=request.user
+        ).exists():
+            raise ValidationError(
+                """You can only leave one review for this creation."""
+            )
+        else:
+            return data
+
 
     class Meta:
         model = Review
-        fields = "__all__"
+        fields = ["id", "text", "author", "score", "pub_date"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Serializer for requests to endpoints of 'Comments' resource."""
-
-    review = serializers.SlugRelatedField(slug_field="text", read_only=True)
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
     )
 
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields = ["id", "text", "author", "pub_date"]
 
 
 class UserSerializer(serializers.ModelSerializer):

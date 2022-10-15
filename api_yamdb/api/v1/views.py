@@ -83,30 +83,36 @@ class ReviewViewSet(ModelViewSetWithoutPUT):
 
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+    def get_title_obj(self, *args, **kwargs):
+        return get_object_or_404(Title, pk=self.kwargs["title_id"])
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs["title_id"])
+        title = self.get_title_obj()
         return title.reviews.select_related("author")
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs["title_id"])
+        title = self.get_title_obj()
         serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(ModelViewSetWithoutPUT):
     """URL requests handler to 'Comments' resource endpoints."""
-
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
+    def get_review_obj(self):
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs["review_id"],
+            title=self.kwargs["title_id"]
+        )
+
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs["review_id"])
+        review = self.get_review_obj()
         return review.comments.select_related("author")
 
     def perform_create(self, serializer):
-        review = get_object_or_404(
-            Review, id=self.kwargs["review_id"], title=self.kwargs["title_id"]
-        )
+        review = self.get_review_obj()
         serializer.save(author=self.request.user, review=review)
 
 
@@ -156,7 +162,7 @@ class UserViewset(ModelViewSetWithoutPUT):
 def signup(request):
     """URL requests handler to the auth/signup/ endpoint."""
     serializer = SignUpSerializer(data=request.data)
-    serializer.is_valid()
+    serializer.is_valid(raise_exception=True)
     serializer.allow_user_receive_conf_code()
     serializer.save()
     email = serializer.validated_data["email"]
@@ -165,7 +171,7 @@ def signup(request):
     send_mail(
         subject="YaMDb confirmation code",
         message=f"Use this code to get an access token: {conf_code}",
-        from_email=f"{settings.FROM_EMAIL}",
+        from_email=settings.FROM_EMAIL,
         recipient_list=(email,),
         fail_silently=False,
     )

@@ -112,7 +112,7 @@ class Review(models.Model):
         Title,
         on_delete=models.CASCADE,
         related_name="reviews",
-        verbose_name="Creation ID",
+        verbose_name="Title ID",
     )
     text = models.TextField(
         verbose_name="Review text", help_text="Write the review"
@@ -123,7 +123,7 @@ class Review(models.Model):
         related_name="reviews",
         verbose_name="Review author",
     )
-    score = models.PositiveIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name="Rating",
         help_text="Rate the creation from 1 to 10",
         validators=[
