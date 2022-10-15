@@ -83,6 +83,7 @@ class ReviewViewSet(ModelViewSetWithoutPUT):
 
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+
     def get_title_obj(self, *args, **kwargs):
         return get_object_or_404(Title, pk=self.kwargs["title_id"])
 
@@ -97,6 +98,7 @@ class ReviewViewSet(ModelViewSetWithoutPUT):
 
 class CommentViewSet(ModelViewSetWithoutPUT):
     """URL requests handler to 'Comments' resource endpoints."""
+
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 

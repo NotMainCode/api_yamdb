@@ -3,11 +3,14 @@
 import csv
 import os.path
 import sqlite3
+
 from django.core.management.base import BaseCommand
+
 from api_yamdb.settings import STATICFILES_DIRS_DATA, BASE_DIR
 
 
 class Command(BaseCommand):
+    """Import test data in database."""
 
     def handle(self, *args, **options):
         fill_test_data()
@@ -15,6 +18,7 @@ class Command(BaseCommand):
 
 
 def fill_table(db, cursor, table, to_db):
+    """Clear table and fill data."""
     cursor.execute(f"DELETE FROM {table}")
     fields = ",".join('?' * len(to_db[0]))
     cursor.executemany(f"INSERT INTO {table} VALUES ({fields});", to_db)
@@ -22,6 +26,7 @@ def fill_table(db, cursor, table, to_db):
 
 
 def get_category_data_from_csv():
+    """Prepare data to table reviews_categories."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "category.csv"),
               "r", encoding="utf8") as category_data:
         dr = csv.DictReader(category_data, delimiter=";")
@@ -30,6 +35,7 @@ def get_category_data_from_csv():
 
 
 def get_genre_data_from_csv():
+    """Prepare data to table reviews_genres."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "genre.csv"),
               "r", encoding="utf8") as genre_data:
         dr = csv.DictReader(genre_data, delimiter=";")
@@ -38,6 +44,7 @@ def get_genre_data_from_csv():
 
 
 def get_title_data_from_csv():
+    """Prepare data to table reviews_title."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "titles.csv"),
               "r", encoding="utf8") as title_data:
         dr = csv.DictReader(title_data, delimiter=";")
@@ -49,15 +56,16 @@ def get_title_data_from_csv():
 
 
 def get_genre_title_data_from_csv():
+    """Prepare data to table reviews_title_genre."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "genre_title.csv"),
-              "r", encoding="utf8"
-    ) as genre_titles_data:
+              "r", encoding="utf8") as genre_titles_data:
         dr = csv.DictReader(genre_titles_data, delimiter=";")
         to_db = [(i["id"], i["title_id"], i["genre_id"]) for i in dr]
     return to_db
 
 
 def get_review_data_from_csv():
+    """Prepare data to table reviews_review."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "review.csv"),
               "r", encoding="utf8") as review_data:
         dr = csv.DictReader(review_data, delimiter=";")
@@ -76,6 +84,7 @@ def get_review_data_from_csv():
 
 
 def get_comment_data_from_csv():
+    """Prepare data to table reviews_comment."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "comments.csv"),
               "r", encoding="utf8") as comments_data:
         dr = csv.DictReader(comments_data, delimiter=";")
@@ -87,6 +96,7 @@ def get_comment_data_from_csv():
 
 
 def get_user_data_from_csv():
+    """Prepare data to table users_user."""
     with open(os.path.join(STATICFILES_DIRS_DATA, "users.csv"),
               "r", encoding="utf8") as users_data:
         dr = csv.DictReader(users_data, delimiter=";")
@@ -114,6 +124,7 @@ def get_user_data_from_csv():
 
 
 def fill_test_data():
+    """Iterate for all tables, call funcs to prepare and fill data in db."""
     db = sqlite3.connect(os.path.join(BASE_DIR, "db.sqlite3"))
     cursor = db.cursor()
     get_data_csv = {
@@ -128,4 +139,3 @@ def fill_test_data():
     for table in get_data_csv:
         data = get_data_csv[table]()
         fill_table(db, cursor, table, data)
-

@@ -1,7 +1,6 @@
 """Serializers of the 'api' application."""
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
@@ -80,6 +79,8 @@ class TitleSerializerWrite(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for requests to endpoints of 'Reviews' resource."""
+
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
     )
@@ -98,13 +99,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         else:
             return data
 
-
     class Meta:
         model = Review
         fields = ["id", "text", "author", "score", "pub_date"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for requests to endpoints of 'Comments' resource."""
+
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
     )
