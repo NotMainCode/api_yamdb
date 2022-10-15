@@ -85,7 +85,7 @@ class ReviewViewSet(ModelViewSetWithoutPUT):
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def get_title_obj(self):
-        return get_object_or_404(Title, pk=self.kwargs["title_id"])
+        return get_object_or_404(Title, id=self.kwargs["title_id"])
 
     def get_queryset(self):
         title = self.get_title_obj()

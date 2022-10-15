@@ -14,16 +14,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         fill_test_data()
-        self.stdout.write('Test data loaded.')
+        self.stdout.write("Test data loaded.")
 
 
 def fill_table_from_csv(db, cursor, filename):
     """Clear table and fill data."""
-
-    table = filename.split('.')[0]
+    table = filename.split(".")[0]
     cursor.execute(f"DELETE FROM {table}")
-    with open(os.path.join(settings.STATICFILES_DIRS_DATA, filename), "r",
-              encoding="utf8") as csv_data:
+    with open(
+        os.path.join(settings.STATICFILES_DIRS_DATA, filename),
+        "r",
+        encoding="utf8",
+    ) as csv_data:
         dr = csv.DictReader(csv_data, delimiter=";")
         for i in dr:
             keys = ",".join(i.keys())
