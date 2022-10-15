@@ -112,13 +112,13 @@ def FillUser():
                 "",
                 "",
                 i["username"],
+                i["first_name"],
                 i["last_name"],
                 "",
                 True,
                 "",
                 i["role"],
                 i["email"],
-                i["first_name"],
                 i["bio"],
             )
             for i in dr

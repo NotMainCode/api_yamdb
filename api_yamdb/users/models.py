@@ -21,6 +21,14 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     bio = models.TextField("Biography", blank=True)
 
+    class Meta:
+        ordering = ("username",)
+        verbose_name = "user"
+        verbose_name_plural = "users"
+
+    def __str__(self):
+        return self.username
+
     @property
     def is_user(self):
         return self.role == self.USER
@@ -32,9 +40,3 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        ordering = ("username",)

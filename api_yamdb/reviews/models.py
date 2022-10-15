@@ -1,5 +1,6 @@
 """Database settings of the 'Reviews' application."""
 
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.timezone import now
@@ -22,13 +23,13 @@ class Category(models.Model):
         help_text="Enter the category URL",
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ("name", "slug")
         verbose_name = "category"
         verbose_name_plural = "categories"
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
@@ -46,13 +47,13 @@ class Genre(models.Model):
         help_text="Enter the genre URL",
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ("name", "slug")
         verbose_name = "genre"
         verbose_name_plural = "genres"
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
@@ -95,13 +96,13 @@ class Title(models.Model):
         related_name="title",
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ("name",)
         verbose_name = "title"
         verbose_name_plural = "titles"
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
@@ -134,9 +135,6 @@ class Review(models.Model):
         verbose_name="Review date", auto_now_add=True, db_index=True
     )
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         ordering = ("pub_date",)
         constraints = [
@@ -144,8 +142,11 @@ class Review(models.Model):
                 fields=("title", "author"), name="unique_review"
             ),
         ]
-        verbose_name = "title"
-        verbose_name_plural = "titles"
+        verbose_name = "review"
+        verbose_name_plural = "reviews"
+
+    def __str__(self):
+        return self.text[: settings.NUM_CHAR]
 
 
 class Comment(models.Model):
@@ -170,10 +171,10 @@ class Comment(models.Model):
         verbose_name="Comment date", auto_now_add=True, db_index=True
     )
 
-    def __str__(self):
-        return self.review
-
     class Meta:
         ordering = ("pub_date",)
-        verbose_name = "review"
-        verbose_name_plural = "reviews"
+        verbose_name = "comment"
+        verbose_name_plural = "comments"
+
+    def __str__(self):
+        return self.text[: settings.NUM_CHAR]

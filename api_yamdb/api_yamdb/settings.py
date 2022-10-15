@@ -8,6 +8,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+INTERNAL_IPS = ["127.0.0.1"]
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -88,7 +90,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 # Redefining the 'User' model
 AUTH_USER_MODEL = "users.User"
@@ -125,7 +127,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 FROM_EMAIL = "YaMDb-email"
 
 # Constants
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
 UNACCEPTABLE_USERNAME = "me"
+
+NUM_CHAR = 15

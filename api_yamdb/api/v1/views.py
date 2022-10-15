@@ -73,7 +73,7 @@ class TitleViewSet(ModelViewSetWithoutPUT):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ("list", "retrieve"):
+        if self.action in {"list", "retrieve"}:
             return TitleSerializerRead
         return TitleSerializerWrite
 
