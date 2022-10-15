@@ -84,7 +84,7 @@ class ReviewViewSet(ModelViewSetWithoutPUT):
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
-    def get_title_obj(self, *args, **kwargs):
+    def get_title_obj(self):
         return get_object_or_404(Title, pk=self.kwargs["title_id"])
 
     def get_queryset(self):
@@ -106,7 +106,7 @@ class CommentViewSet(ModelViewSetWithoutPUT):
         return get_object_or_404(
             Review,
             pk=self.kwargs["review_id"],
-            title=self.kwargs["title_id"]
+            title_id=self.kwargs["title_id"]
         )
 
     def get_queryset(self):
