@@ -71,7 +71,7 @@ py manage.py migrate
 
 Load test data (if you need)
 ```
-py manage.py load_test_data
+py manage.py import_test_data
 ```
 
 Run project
