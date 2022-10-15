@@ -7,30 +7,30 @@ db = sqlite3.connect("db.sqlite3")
 cursor = db.cursor()
 
 
-def FillCategories():
+def FillCategory():
     """Fill test data in db table reviews_categories."""
 
-    cursor.execute("DELETE FROM reviews_categories")
+    cursor.execute("DELETE FROM reviews_category")
     with open(
         "static/data/category.csv", "r", encoding="utf8"
     ) as category_data:
         dr = csv.DictReader(category_data, delimiter=",")
         to_db = [(i["id"], i["name"], i["slug"]) for i in dr]
-    cursor.executemany("INSERT INTO reviews_categories VALUES (?,?,?);", to_db)
+    cursor.executemany("INSERT INTO reviews_category VALUES (?,?,?);", to_db)
     db.commit()
 
 
-def FillGenres():
+def FillGenre():
     """Fill test data in db table reviews_genres."""
-    cursor.execute("DELETE FROM reviews_genres")
+    cursor.execute("DELETE FROM reviews_genre")
     with open("static/data/genre.csv", "r", encoding="utf8") as genre_data:
         dr = csv.DictReader(genre_data, delimiter=",")
         to_db = [(i["id"], i["name"], i["slug"]) for i in dr]
-    cursor.executemany("INSERT INTO reviews_genres VALUES (?,?,?);", to_db)
+    cursor.executemany("INSERT INTO reviews_genre VALUES (?,?,?);", to_db)
     db.commit()
 
 
-def FillTitles():
+def FillTitle():
     """Fill test data in db table reviews_title."""
 
     cursor.execute("DELETE FROM reviews_title")
@@ -44,7 +44,7 @@ def FillTitles():
     db.commit()
 
 
-def FillGenreTitles():
+def FillGenreTitle():
     """Fill test data in db table reviews_title_genre."""
     cursor.execute("DELETE FROM reviews_title_genre")
     with open(
@@ -81,7 +81,7 @@ def FillReview():
     db.commit()
 
 
-def FillComments():
+def FillComment():
     """Fill test data in db table reviews_comment."""
 
     cursor.execute("DELETE FROM reviews_comment")
@@ -99,7 +99,7 @@ def FillComments():
     db.commit()
 
 
-def FillUsers():
+def FillUser():
     """Fill test data in db table users_user."""
 
     cursor.execute("DELETE FROM users_user WHERE username !='admin'")
@@ -118,23 +118,21 @@ def FillUsers():
                 "",
                 i["role"],
                 i["email"],
-                False,
                 i["first_name"],
                 i["bio"],
-                "",
             )
             for i in dr
         ]
     cursor.executemany(
-        "INSERT INTO users_user VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", to_db
+        "INSERT INTO users_user VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);", to_db
     )
     db.commit()
 
 
-FillCategories()
-FillGenres()
-FillTitles()
-FillGenreTitles()
+FillCategory()
+FillGenre()
+FillTitle()
+FillGenreTitle()
 FillReview()
-FillComments()
-FillUsers()
+FillComment()
+FillUser()

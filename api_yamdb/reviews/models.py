@@ -8,68 +8,69 @@ from users.models import User
 
 
 class Category(models.Model):
+    """'Category' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Category",
         help_text="Enter a category",
-        db_index=True
+        db_index=True,
     )
     slug = models.SlugField(
         unique=True,
         verbose_name="Category URL",
-        help_text="Enter the category URL"
+        help_text="Enter the category URL",
     )
 
-    class Meta:
-        ordering = (
-            "name",
-            "slug"
-        )
-        verbose_name = 'category'
-        verbose_name_plural = 'categories'
-
     def __str__(self):
-        return f'{self.name}'
+        return self.name
+
+    class Meta:
+        ordering = ("name", "slug")
+        verbose_name = "category"
+        verbose_name_plural = "categories"
 
 
 class Genre(models.Model):
+    """'Genre' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Genre",
         help_text="Enter the genre",
-        db_index=True
+        db_index=True,
     )
     slug = models.SlugField(
         unique=True,
         verbose_name="Genre URL",
-        help_text="Enter the genre URL"
+        help_text="Enter the genre URL",
     )
 
-    class Meta:
-        ordering = (
-            "name",
-            "slug"
-        )
-        verbose_name = 'genre'
-        verbose_name_plural = 'genres'
-
     def __str__(self):
-        return f'{self.name}'
+        return self.name
+
+    class Meta:
+        ordering = ("name", "slug")
+        verbose_name = "genre"
+        verbose_name_plural = "genres"
 
 
 class Title(models.Model):
+    """'Title' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Title",
         help_text="Enter the title",
-        db_index=True
+        db_index=True,
     )
     year = models.PositiveIntegerField(
         verbose_name="Release year",
         help_text="Enter the release year",
         validators=[
-            MaxValueValidator(now().year,
-                              "Release year can't exceed the current date"),
+            MaxValueValidator(
+                now().year, "Release year can't exceed the current date"
+            ),
         ],
     )
 
@@ -77,13 +78,13 @@ class Title(models.Model):
         null=True,
         blank=True,
         verbose_name="Description",
-        help_text="Enter a description (not necessary)"
+        help_text="Enter a description (not necessary)",
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name="Genres",
+        verbose_name="Genre",
         help_text="Select a genre",
-        related_name="title"
+        related_name="title",
     )
     category = models.ForeignKey(
         Category,
@@ -91,19 +92,21 @@ class Title(models.Model):
         null=True,
         verbose_name="Category",
         help_text="Select a category",
-        related_name="title"
+        related_name="title",
     )
 
-    class Meta:
-        ordering = ["name"]
-        verbose_name = 'title'
-        verbose_name_plural = 'titles'
-
     def __str__(self):
-        return f'{self.name}'
+        return self.name
+
+    class Meta:
+        ordering = ("name",)
+        verbose_name = "title"
+        verbose_name_plural = "titles"
 
 
 class Review(models.Model):
+    """'Review' resource table settings."""
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -131,16 +134,23 @@ class Review(models.Model):
         verbose_name="Review date", auto_now_add=True, db_index=True
     )
 
+    def __str__(self):
+        return self.title
+
     class Meta:
-        ordering = ["pub_date"]
+        ordering = ("pub_date",)
         constraints = [
             models.UniqueConstraint(
-                fields=["title", "author"], name="unique_review"
+                fields=("title", "author"), name="unique_review"
             ),
         ]
+        verbose_name = "title"
+        verbose_name_plural = "titles"
 
 
 class Comment(models.Model):
+    """'Comment' resource table settings."""
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -160,5 +170,10 @@ class Comment(models.Model):
         verbose_name="Comment date", auto_now_add=True, db_index=True
     )
 
+    def __str__(self):
+        return self.review
+
     class Meta:
-        ordering = ["pub_date"]
+        ordering = ("pub_date",)
+        verbose_name = "review"
+        verbose_name_plural = "reviews"

@@ -7,29 +7,34 @@ from django.db import models
 class User(AbstractUser):
     """Modified model User."""
 
-    ROLE_OPTIONS = (
-        ("user", "user"),
-        ("moderator", "moderator"),
-        ("admin", "admin"),
-    )
+    USER = "user"
+    MODERATOR = "moderator"
+    ADMIN = "admin"
+    ROLE_OPTIONS = [
+        (USER, "user"),
+        (MODERATOR, "moderator"),
+        (ADMIN, "admin"),
+    ]
     role = models.CharField(
-        "Role", max_length=9, choices=ROLE_OPTIONS, default="user"
+        "Role", max_length=20, choices=ROLE_OPTIONS, default=USER
     )
-    email = models.EmailField(blank=False, unique=True)
-    email_confirmed = models.BooleanField(default=False)
-    first_name = models.CharField("First name", max_length=150, blank=True)
+    email = models.EmailField(unique=True)
     bio = models.TextField("Biography", blank=True)
-    confirmation_code = models.CharField(
-        "First name", max_length=32, blank=True
-    )
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
 
     def __str__(self):
         return self.username
 
     class Meta:
-        ordering = ["username"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["username", "email"], name="unique_user"
-            ),
-        ]
+        ordering = ("username",)

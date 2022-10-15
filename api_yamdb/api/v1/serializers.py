@@ -1,6 +1,6 @@
 """Serializers of the 'api' application."""
 
-
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
@@ -9,29 +9,38 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
+def unacceptable_username(username):
+    return username.lower() == settings.UNACCEPTABLE_USERNAME
+
+
+def email_exists(email):
+    return User.objects.filter(email=email).exists()
+
+
+def username_exists(username):
+    return User.objects.filter(username=username).exists()
+
+
 class CategorySerializer(serializers.ModelSerializer):
-    """Return name, slug for Category."""
+    """Serializer for requests to endpoints of 'Categories' resource."""
+
     class Meta:
         fields = ("name", "slug")
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Return name, slug for Genre."""
+    """Serializer for requests to endpoints of 'Genres' resource."""
+
     class Meta:
         fields = ("name", "slug")
         model = Genre
 
 
 class TitleSerializerRead(serializers.ModelSerializer):
-    """
-    Return id, name, year, rating, description, genre, category
-    for Title. For reading data.
-    """
-    genre = GenreSerializer(
-        many=True,
-        read_only=True
-    )
+    """Serializer for requests 'GET' to endpoints of Titles resource."""
+
+    genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.IntegerField(read_only=True)
 
@@ -43,25 +52,19 @@ class TitleSerializerRead(serializers.ModelSerializer):
             "rating",
             "description",
             "genre",
-            "category"
+            "category",
         )
         model = Title
 
 
 class TitleSerializerWrite(serializers.ModelSerializer):
-    """
-    Return id, name, year, rating, description, genre, category
-    for Title. To enter data.
-    """
+    """Serializer for requests (excl 'GET') to 'Titles' resource endpoints."""
+
     genre = serializers.SlugRelatedField(
-        slug_field="slug",
-        queryset=Genre.objects.all(),
-        many=True
+        slug_field="slug", queryset=Genre.objects.all(), many=True
     )
     category = serializers.SlugRelatedField(
-        slug_field="slug",
-        queryset=Category.objects.all(),
-        many=False
+        slug_field="slug", queryset=Category.objects.all(), many=False
     )
 
     class Meta:
@@ -71,12 +74,14 @@ class TitleSerializerWrite(serializers.ModelSerializer):
             "year",
             "description",
             "genre",
-            "category"
+            "category",
         )
         model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for requests to endpoints of 'Reviews' resource."""
+
     title = serializers.SlugRelatedField(slug_field="name", read_only=True)
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
@@ -102,6 +107,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for requests to endpoints of 'Comments' resource."""
+
     review = serializers.SlugRelatedField(slug_field="text", read_only=True)
     author = serializers.SlugRelatedField(
         slug_field="username", read_only=True
@@ -112,7 +119,9 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UsersSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for requests to endpoints of 'Users' resource."""
+
     class Meta:
         fields = (
             "username",
@@ -125,94 +134,51 @@ class UsersSerializer(serializers.ModelSerializer):
         model = User
 
     def validate_username(self, value):
-        if value.lower() == "me":
+        if unacceptable_username(value):
             raise serializers.ValidationError("The name 'me' is not allowed.")
         return value
 
 
-class UsersNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
-        )
-        read_only_fields = ("username", "email")
-        model = User
-
-
-class UsersMeGetSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
-        )
-        model = User
-
-
-class UsersMePatchSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
-        )
-        read_only_fields = ("username", "email", "role")
-        model = User
-
-
 class SignUpSerializer(serializers.Serializer):
+    """Serializer for requests to auth/signup/ endpoint."""
+
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254)
 
     def create(self, validated_data):
         return User.objects.get_or_create(**validated_data)
 
-    def validate_email(self, value):
-        if (
-            User.objects.filter(email=value).exists()
-            and User.objects.get(email=value).email_confirmed
-        ):
+    def allow_user_receive_conf_code(self):
+        email = self.validated_data["email"]
+        username = self.validated_data["username"]
+        if email_exists(email) and username_exists(username):
+            return
+        if username_exists(username):
             raise serializers.ValidationError(
-                f"Another user is already using mail: {value}."
+                f"User named '{username}' already exists."
             )
-        return value
-
-    def validate_username(self, value):
-        if value.lower() == "me":
+        if email_exists(email):
+            raise serializers.ValidationError(
+                f"Another user is already using mail: {email}."
+            )
+        if unacceptable_username(username):
             raise serializers.ValidationError("The name 'me' is not allowed.")
-        if (
-            User.objects.filter(username=value).exists()
-            and User.objects.get(username=value).email_confirmed
-        ):
-            raise serializers.ValidationError(
-                f"User named '{value}' already exists."
-            )
-        return value
 
 
 class GetTokenSerializer(serializers.Serializer):
+    """Serializer for requests to auth/token/ endpoint."""
+
     username = serializers.CharField(max_length=150)
     confirmation_code = serializers.CharField(max_length=32)
 
     def validate_username(self, value):
-        if not User.objects.filter(username=value).exists():
+        if not username_exists(value):
             raise NotFound(detail=f"The user named '{value}' does not exist.")
         return value
 
     def validate_confirmation_code(self, value):
-        if len(value) < 32:
+        if len(value) != 24:
             raise serializers.ValidationError(
-                "Ensure that confirmation code contain 32 characters."
+                "Ensure that confirmation code contain 24 characters."
             )
         return value

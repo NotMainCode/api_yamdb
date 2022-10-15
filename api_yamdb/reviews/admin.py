@@ -6,8 +6,8 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 
 @admin.register(Category)
-class CategoriesAdmin(admin.ModelAdmin):
-    """Table settings for categories on the admin site."""
+class CategoryAdmin(admin.ModelAdmin):
+    """Table settings for resource 'Category' on the admin site."""
 
     list_display = (
         "pk",
@@ -18,8 +18,8 @@ class CategoriesAdmin(admin.ModelAdmin):
 
 
 @admin.register(Genre)
-class GenresAdmin(admin.ModelAdmin):
-    """Table settings for genres on the admin site."""
+class GenreAdmin(admin.ModelAdmin):
+    """Table settings for resource 'Genre' on the admin site."""
 
     list_display = (
         "pk",
@@ -31,7 +31,7 @@ class GenresAdmin(admin.ModelAdmin):
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
-    """Table settings for creations on the admin site."""
+    """Table settings for resource 'Title' on the admin site."""
 
     list_display = (
         "pk",
@@ -48,7 +48,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    """Table settings for creations reviews on the admin site."""
+    """Table settings for resource 'Review' on the admin site."""
 
     list_display = (
         "pk",
@@ -64,7 +64,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    """Table settings for comments on reviews on the admin site."""
+    """Table settings for resource 'Comment' on the admin site."""
 
     list_display = (
         "pk",
