@@ -83,7 +83,7 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name="Genre",
+        verbose_name="Genres",
         help_text="Select a genre",
         related_name="title",
     )
