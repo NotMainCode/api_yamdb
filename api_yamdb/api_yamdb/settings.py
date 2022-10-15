@@ -114,7 +114,7 @@ if DEBUG:
     REST_FRAMEWORK.update(
         {
             "DEFAULT_AUTHENTICATION_CLASSES": [
-                'rest_framework_simplejwt.authentication.JWTAuthentication',
+                "rest_framework_simplejwt.authentication.JWTAuthentication",
                 "rest_framework.authentication.SessionAuthentication",
             ],
         }
@@ -125,7 +125,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 FROM_EMAIL = "YaMDb-email"
 
 # Constants
-LEN_COMFIRM_CODE = 16
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

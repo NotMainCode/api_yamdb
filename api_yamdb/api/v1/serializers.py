@@ -170,7 +170,7 @@ class SignUpSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         username = self.validated_data["username"]
         if email_exists(email) and username_exists(username):
-            return True
+            return
         if username_exists(username):
             raise serializers.ValidationError(
                 f"User named '{username}' already exists."
@@ -181,7 +181,6 @@ class SignUpSerializer(serializers.Serializer):
             )
         if unacceptable_username(username):
             raise serializers.ValidationError("The name 'me' is not allowed.")
-        return True
 
 
 class GetTokenSerializer(serializers.Serializer):
@@ -196,7 +195,7 @@ class GetTokenSerializer(serializers.Serializer):
         return value
 
     def validate_confirmation_code(self, value):
-        if len(value) < 24:
+        if len(value) != 24:
             raise serializers.ValidationError(
                 "Ensure that confirmation code contain 24 characters."
             )

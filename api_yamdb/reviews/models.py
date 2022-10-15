@@ -7,6 +7,8 @@ from users.models import User
 
 
 class Category(models.Model):
+    """'Category' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Category",
@@ -33,6 +35,8 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
+    """'Genre' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Genre",
@@ -59,6 +63,8 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
+    """'Title' resource table settings."""
+
     name = models.CharField(
         max_length=256,
         verbose_name="Title",
@@ -100,6 +106,8 @@ class Title(models.Model):
 
 
 class Review(models.Model):
+    """'Review' resource table settings."""
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -137,6 +145,8 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """'Comment' resource table settings."""
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
