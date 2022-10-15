@@ -1,41 +1,39 @@
 """Serializers of the 'api' application."""
 
-import datetime as dt
 
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
-from reviews.models import Categories, Comment, Genres, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
-class CategoriesSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    """Return name, slug for Category."""
     class Meta:
         fields = ("name", "slug")
-        model = Categories
+        model = Category
 
 
-class CategoriesSerializerAdd(serializers.ModelSerializer):
-    class Meta:
-        fields = ("name",)
-        model = Categories
-
-
-class GenresSerializer(serializers.ModelSerializer):
+class GenreSerializer(serializers.ModelSerializer):
+    """Return name, slug for Genre."""
     class Meta:
         fields = ("name", "slug")
-        model = Genres
+        model = Genre
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenresSerializer(many=True)
-    category = CategoriesSerializer()
-    rating = serializers.SerializerMethodField()
-
-    def get_rating(self, ob):
-        return ob.reviews.all().aggregate(Avg("score"))["score__avg"]
+class TitleSerializerRead(serializers.ModelSerializer):
+    """
+    Return id, name, year, rating, description, genre, category
+    for Title. For reading data.
+    """
+    genre = GenreSerializer(
+        many=True,
+        read_only=True
+    )
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = (
@@ -45,28 +43,25 @@ class TitleSerializer(serializers.ModelSerializer):
             "rating",
             "description",
             "genre",
-            "category",
+            "category"
         )
         model = Title
 
-    def validate_year(self, value):
-        if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Please enter a valid date")
-        return value
 
-
-class TitleSerializerAdd(serializers.ModelSerializer):
+class TitleSerializerWrite(serializers.ModelSerializer):
+    """
+    Return id, name, year, rating, description, genre, category
+    for Title. To enter data.
+    """
     genre = serializers.SlugRelatedField(
         slug_field="slug",
-        queryset=Genres.objects.all(),
-        many=True,
-        required=True,
+        queryset=Genre.objects.all(),
+        many=True
     )
     category = serializers.SlugRelatedField(
         slug_field="slug",
-        queryset=Categories.objects.all(),
-        many=False,
-        required=True,
+        queryset=Category.objects.all(),
+        many=False
     )
 
     class Meta:
@@ -76,14 +71,9 @@ class TitleSerializerAdd(serializers.ModelSerializer):
             "year",
             "description",
             "genre",
-            "category",
+            "category"
         )
         model = Title
-
-    def validate_year(self, value):
-        if value > dt.datetime.now().year:
-            raise serializers.ValidationError("Please enter a valid date")
-        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):

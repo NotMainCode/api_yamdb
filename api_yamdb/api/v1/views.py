@@ -1,5 +1,6 @@
 """URLs request handlers of the 'api' application."""
 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, status
@@ -16,14 +17,14 @@ from api.v1.permissions import (
     IsAdminRoleSuperUserOrReadOnly,
 )
 from api.v1.serializers import (
-    CategoriesSerializer,
+    CategorySerializer,
     CommentSerializer,
-    GenresSerializer,
+    GenreSerializer,
     GetTokenSerializer,
     ReviewSerializer,
     SignUpSerializer,
-    TitleSerializer,
-    TitleSerializerAdd,
+    TitleSerializerWrite,
+    TitleSerializerRead,
     UsersMeGetSerializer,
     UsersMePatchSerializer,
     UsersNameSerializer,
@@ -36,13 +37,13 @@ from api.viewsets import (
     RetrieveUpdate,
     RetrieveUpdateDestroyViewSet,
 )
-from reviews.models import Categories, Genres, Review, Title
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
     permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     lookup_field = "slug"
     filter_backends = (filters.SearchFilter,)
@@ -50,8 +51,8 @@ class CategoriesViewSet(CreateListDeleteViewSet):
 
 
 class GenresViewSet(CreateListDeleteViewSet):
-    queryset = Genres.objects.all()
-    serializer_class = GenresSerializer
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
     permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     lookup_field = "slug"
     filter_backends = (filters.SearchFilter,)
@@ -61,15 +62,15 @@ class GenresViewSet(CreateListDeleteViewSet):
 class TitleViewSet(ModelViewSetWithoutPUT):
     queryset = Title.objects.select_related("category").prefetch_related(
         "genre"
-    )
+    ).annotate(rating=Avg('reviews__score')).order_by('name')
     permission_classes = (IsAdminRoleSuperUserOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
-            return TitleSerializer
-        return TitleSerializerAdd
+            return TitleSerializerRead
+        return TitleSerializerWrite
 
 
 class ReviewViewSet(ModelViewSetWithoutPUT):

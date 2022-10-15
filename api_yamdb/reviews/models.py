@@ -2,60 +2,59 @@
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.timezone import now
 
 from users.models import User
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name="Category",
         help_text="Enter a category",
-        db_index=True,
+        db_index=True
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
         verbose_name="Category URL",
-        help_text="Enter the category URL",
+        help_text="Enter the category URL"
     )
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         ordering = (
             "name",
-            "slug",
+            "slug"
         )
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
+
+    def __str__(self):
+        return f'{self.name}'
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name="Genre",
         help_text="Enter the genre",
-        db_index=True,
+        db_index=True
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
         verbose_name="Genre URL",
-        help_text="Enter the genre URL",
+        help_text="Enter the genre URL"
     )
-
-    objects = models.Manager()
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         ordering = (
             "name",
-            "slug",
+            "slug"
         )
+        verbose_name = 'genre'
+        verbose_name_plural = 'genres'
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Title(models.Model):
@@ -63,40 +62,45 @@ class Title(models.Model):
         max_length=256,
         verbose_name="Title",
         help_text="Enter the title",
-        db_index=True,
+        db_index=True
     )
-    year = models.IntegerField(
-        verbose_name="Release year", help_text="Enter the release year"
+    year = models.PositiveIntegerField(
+        verbose_name="Release year",
+        help_text="Enter the release year",
+        validators=[
+            MaxValueValidator(now().year,
+                              "Release year can't exceed the current date"),
+        ],
     )
 
-    description = models.CharField(
-        max_length=256,
+    description = models.TextField(
         null=True,
         blank=True,
         verbose_name="Description",
-        help_text="Enter a description (not necessary)",
+        help_text="Enter a description (not necessary)"
     )
     genre = models.ManyToManyField(
-        Genres,
-        verbose_name="Genre",
+        Genre,
+        verbose_name="Genres",
         help_text="Select a genre",
-        related_name="title",
+        related_name="title"
     )
     category = models.ForeignKey(
-        Categories,
-        on_delete=models.DO_NOTHING,
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
         verbose_name="Category",
         help_text="Select a category",
-        related_name="title",
+        related_name="title"
     )
-
-    objects = models.Manager()
 
     class Meta:
         ordering = ["name"]
+        verbose_name = 'title'
+        verbose_name_plural = 'titles'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Review(models.Model):

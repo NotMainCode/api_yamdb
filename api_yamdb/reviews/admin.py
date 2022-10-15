@@ -2,10 +2,10 @@
 
 from django.contrib import admin
 
-from reviews.models import Categories, Comment, Genres, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
-@admin.register(Categories)
+@admin.register(Category)
 class CategoriesAdmin(admin.ModelAdmin):
     """Table settings for categories on the admin site."""
 
@@ -17,7 +17,7 @@ class CategoriesAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
-@admin.register(Genres)
+@admin.register(Genre)
 class GenresAdmin(admin.ModelAdmin):
     """Table settings for genres on the admin site."""
 

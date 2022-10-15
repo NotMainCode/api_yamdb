@@ -1,24 +1,19 @@
 """Custom filters."""
 
 import django_filters
-from django_filters import CharFilter, ModelChoiceFilter
+from django_filters import CharFilter
 
-from reviews.models import Categories, Genres, Title
+from reviews.models import Title
 
 
 class TitleFilter(django_filters.FilterSet):
+    """
+    Filters Title by fields:
+    name, category, genre, year.
+    """
     name = CharFilter(lookup_expr="icontains")
-    category = ModelChoiceFilter(
-        field_name="category",
-        to_field_name="slug",
-        queryset=Categories.objects.all(),
-    )
-    genre = ModelChoiceFilter(
-        field_name="genre",
-        to_field_name="slug",
-        queryset=Genres.objects.all(),
-    )
-    year = CharFilter(lookup_expr="exact")
+    category = CharFilter(field_name='category__slug')
+    genre = CharFilter(field_name='genre__slug')
 
     class Meta:
         model = Title
