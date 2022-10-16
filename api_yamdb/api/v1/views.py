@@ -1,7 +1,8 @@
 """URLs request handlers of the 'api' application."""
 
+import django
 from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -68,6 +69,7 @@ class TitleViewSet(ModelViewSetWithoutPUT):
         .annotate(rating=Avg("reviews__score"))
         .order_by("name")
     )
+
     permission_classes = (IsAdminRoleOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -135,28 +137,13 @@ class UserViewset(ModelViewSetWithoutPUT):
         permission_classes=(IsAuthenticated,),
     )
     def users_me(self, request):
-        user = get_object_or_404(User, username=request.user)
-        serializer = UserSerializer(user)
-        if request.method == "PATCH":
-            data = request.data.copy()
-            if request.user.role in {"moderator", "user"}:
-                data.pop("role", None)
-            serializer = UserSerializer(user, data=data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.is_superuser:
-            raise serializers.ValidationError(
-                {
-                    "detail": f"You do not have permission "
-                    f"to modify user data: {instance.username}"
-                }
-            )
-        kwargs["partial"] = True
-        return self.update(request, *args, **kwargs)
+        if request.method == "GET":
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        serializer = self.get_serializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role,)
+        return Response(serializer.data, status = status.HTTP_200_OK)
 
 
 @api_view(("POST",))
@@ -165,19 +152,22 @@ def signup(request):
     """URL requests handler to the auth/signup/ endpoint."""
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.allow_user_receive_conf_code()
-    serializer.save()
-    email = serializer.validated_data["email"]
-    user = get_object_or_404(User, email=email)
-    conf_code = PasswordResetTokenGenerator().make_token(user)
+    try:
+        user, created = User.objects.get_or_create(**serializer.validated_data)
+    except django.db.utils.IntegrityError:
+        return Response(
+            {"detail": "username or email is not unique"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    conf_code = default_token_generator.make_token(user)
     send_mail(
         subject="YaMDb confirmation code",
         message=f"Use this code to get an access token: {conf_code}",
-        from_email=settings.FROM_EMAIL,
-        recipient_list=(email,),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list = (serializer.validated_data["email"],),
         fail_silently=False,
     )
-    return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(("POST",))
@@ -189,7 +179,7 @@ def get_token(request):
     user = get_object_or_404(
         User, username=serializer.validated_data["username"]
     )
-    if not PasswordResetTokenGenerator().check_token(
+    if not default_token_generator.check_token(
         user, serializer.validated_data["confirmation_code"]
     ):
         raise serializers.ValidationError(

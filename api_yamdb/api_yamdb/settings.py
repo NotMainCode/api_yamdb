@@ -10,7 +10,6 @@ ALLOWED_HOSTS = ["*"]
 
 INTERNAL_IPS = ["127.0.0.1"]
 
-# Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -57,7 +56,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "api_yamdb.wsgi.application"
 
-# Database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -65,7 +63,6 @@ DATABASES = {
     }
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -125,7 +122,7 @@ if DEBUG:
 
 # To emulate a mail server
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-FROM_EMAIL = "YaMDb-email"
+DEFAULT_FROM_EMAIL = "YaMDb-email"
 
 # Constants
 UNACCEPTABLE_USERNAME = "me"

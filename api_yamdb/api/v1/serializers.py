@@ -2,22 +2,17 @@
 
 from django.conf import settings
 from rest_framework import serializers
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
 def unacceptable_username(username):
-    return username.lower() == settings.UNACCEPTABLE_USERNAME
-
-
-def email_exists(email):
-    return User.objects.filter(email=email).exists()
-
-
-def username_exists(username):
-    return User.objects.filter(username=username).exists()
+    if username.lower() == settings.UNACCEPTABLE_USERNAME:
+        raise serializers.ValidationError(
+            f"The name {settings.UNACCEPTABLE_USERNAME} is not allowed."
+        )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -85,6 +80,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field="username", read_only=True
     )
 
+    class Meta:
+        model = Review
+        fields = ("id", "text", "author", "score", "pub_date")
+
     def validate(self, data):
         request = self.context["request"]
         title_id = self.context["request"].parser_context["kwargs"]["title_id"]
@@ -99,10 +98,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         else:
             return data
 
-    class Meta:
-        model = Review
-        fields = ["id", "text", "author", "score", "pub_date"]
-
 
 class CommentSerializer(serializers.ModelSerializer):
     """Serializer for requests to endpoints of 'Comments' resource."""
@@ -113,7 +108,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ["id", "text", "author", "pub_date"]
+        fields = ("id", "text", "author", "pub_date")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -131,8 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
     def validate_username(self, value):
-        if unacceptable_username(value):
-            raise serializers.ValidationError("The name 'me' is not allowed.")
+        unacceptable_username(value)
         return value
 
 
@@ -142,40 +136,17 @@ class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254)
 
-    def create(self, validated_data):
-        return User.objects.get_or_create(**validated_data)
-
-    def allow_user_receive_conf_code(self):
-        email = self.validated_data["email"]
-        username = self.validated_data["username"]
-        if email_exists(email) and username_exists(username):
-            return
-        if username_exists(username):
-            raise serializers.ValidationError(
-                f"User named '{username}' already exists."
-            )
-        if email_exists(email):
-            raise serializers.ValidationError(
-                f"Another user is already using mail: {email}."
-            )
-        if unacceptable_username(username):
-            raise serializers.ValidationError("The name 'me' is not allowed.")
+    def validate_username(self, value):
+        unacceptable_username(value)
+        return value
 
 
 class GetTokenSerializer(serializers.Serializer):
     """Serializer for requests to auth/token/ endpoint."""
 
     username = serializers.CharField(max_length=150)
-    confirmation_code = serializers.CharField(max_length=32)
+    confirmation_code = serializers.CharField(max_length=24)
 
     def validate_username(self, value):
-        if not username_exists(value):
-            raise NotFound(detail=f"The user named '{value}' does not exist.")
-        return value
-
-    def validate_confirmation_code(self, value):
-        if len(value) != 24:
-            raise serializers.ValidationError(
-                "Ensure that confirmation code contain 24 characters."
-            )
+        unacceptable_username(value)
         return value

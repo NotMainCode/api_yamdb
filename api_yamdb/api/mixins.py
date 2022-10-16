@@ -11,11 +11,8 @@ class CreateListDeleteViewSet(
 ):
     """Viewset allows methods: GET(queryset), POST, DELETE."""
 
-    pass
-
 
 class ModelViewSetWithoutPUT(viewsets.ModelViewSet):
     """The viewset allows all methods except PUT."""
 
     http_method_names = ("get", "post", "patch", "delete", "head", "options")
-    pass
