@@ -63,7 +63,7 @@ class TitleSerializerWrite(serializers.ModelSerializer):
         slug_field="slug", queryset=Genre.objects.all(), many=True
     )
     category = serializers.SlugRelatedField(
-        slug_field="slug", queryset=Category.objects.all(), many=False
+        slug_field="slug", queryset=Category.objects.all()
     )
 
     class Meta:

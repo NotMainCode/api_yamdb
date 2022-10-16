@@ -62,12 +62,13 @@ class GenreViewSet(CreateListDeleteViewSet):
 class TitleViewSet(ModelViewSetWithoutPUT):
     """URL requests handler to 'Titles' resource endpoints."""
 
-    queryset = (
-        Title.objects.select_related("category")
-        .prefetch_related("genre")
-        .annotate(rating=Avg("reviews__score"))
-        .order_by("name")
-    )
+    queryset = Title.objects.select_related(
+        "category"
+    ).prefetch_related(
+        "genre"
+    ).annotate(
+        rating=Avg("reviews__score")
+    ).order_by("name")
     permission_classes = (IsAdminRoleOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter

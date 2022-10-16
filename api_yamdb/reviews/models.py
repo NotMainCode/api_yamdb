@@ -3,9 +3,9 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.timezone import now
 
 from users.models import User
+from .validators import validate_year
 
 
 class Category(models.Model):
@@ -68,11 +68,7 @@ class Title(models.Model):
     year = models.PositiveIntegerField(
         verbose_name="Release year",
         help_text="Enter the release year",
-        validators=[
-            MaxValueValidator(
-                now().year, "Release year can't exceed the current date"
-            ),
-        ],
+        validators=[validate_year]
     )
 
     description = models.TextField(
@@ -84,16 +80,14 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         verbose_name="Genres",
-        help_text="Select a genre",
-        related_name="title",
+        help_text="Select a genre"
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         verbose_name="Category",
-        help_text="Select a category",
-        related_name="title",
+        help_text="Select a category"
     )
 
     class Meta:
