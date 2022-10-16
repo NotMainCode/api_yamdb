@@ -3,27 +3,6 @@
 from rest_framework import permissions
 
 
-def safe_methods(request):
-    return request.method in permissions.SAFE_METHODS
-
-
-def safe_methods_or_authenticated(request):
-    return safe_methods(request) or request.user.is_authenticated
-
-
-def safe_methods_or_admin_moderator(request):
-    return safe_methods(request) or (
-        request.user.is_authenticated
-        and (request.user.is_admin or request.user.is_moderator)
-    )
-
-
-def admin_role_or_superuser(request):
-    return request.user.is_authenticated and (
-        request.user.is_admin or request.user.is_superuser
-    )
-
-
 def admin_role(request):
     return request.user.is_authenticated and request.user.is_admin
 
@@ -35,12 +14,15 @@ class IsAdminModeratorAuthorOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (
-            safe_methods_or_admin_moderator(request)
-            or obj.author == request.user
+                request.method in permissions.SAFE_METHODS
+                or request.user == obj.author
+                or request.user.is_moderator
+                or admin_role(request)
         )
 
     def has_permission(self, request, view):
-        return safe_methods_or_authenticated(request)
+        return (request.method in permissions.SAFE_METHODS) or (
+            request.user.is_authenticated)
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -49,10 +31,12 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
     message = "Only author has permission to perform this action."
 
     def has_permission(self, request, view):
-        return safe_methods_or_authenticated(request)
+        return (request.method in permissions.SAFE_METHODS) or (
+            request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        return safe_methods(request) or obj.author == request.user
+        return (request.method in permissions.SAFE_METHODS) or (
+                obj.author == request.user)
 
 
 class IsAdminRoleOrReadOnly(permissions.BasePermission):
@@ -61,16 +45,14 @@ class IsAdminRoleOrReadOnly(permissions.BasePermission):
     message = "You do not have permission to perform this action."
 
     def has_permission(self, request, view):
-        return safe_methods(request) or admin_role(request)
-
-    def has_object_permission(self, request, view, obj):
-        return safe_methods_or_admin_moderator(request)
+        return ((request.method in permissions.SAFE_METHODS) or (
+            admin_role(request)))
 
 
-class IsAdminRoleOrSuperUser(permissions.BasePermission):
-    """Only administrator and superuser access."""
+class IsAdminRole(permissions.BasePermission):
+    """Only administrator."""
 
     message = "You do not have permission to perform this action."
 
     def has_permission(self, request, view):
-        return admin_role_or_superuser(request)
+        return admin_role(request)

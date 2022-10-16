@@ -20,7 +20,7 @@ from api.v1.filters import TitleFilter
 from api.v1.permissions import (
     IsAdminModeratorAuthorOrReadOnly,
     IsAdminRoleOrReadOnly,
-    IsAdminRoleOrSuperUser,
+    IsAdminRole,
 )
 from api.v1.serializers import (
     CategorySerializer,
@@ -124,7 +124,7 @@ class UserViewset(ModelViewSetWithoutPUT):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdminRoleOrSuperUser,)
+    permission_classes = (IsAdminRole,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
     lookup_field = "username"

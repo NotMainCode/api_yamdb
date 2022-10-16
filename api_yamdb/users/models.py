@@ -31,12 +31,14 @@ class User(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == self.USER
+        return self.is_authenticated and self.role == self.USER
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.is_authenticated and self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return (
+            self.role == self.ADMIN or self.is_staff or self.is_superuser
+        )
