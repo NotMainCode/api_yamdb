@@ -85,6 +85,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field="username", read_only=True
     )
 
+    class Meta:
+        model = Review
+        fields = ("id", "text", "author", "score", "pub_date")
+
     def validate(self, data):
         request = self.context["request"]
         if request.method != "POST":
@@ -97,10 +101,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 """You can only leave one review for this creation."""
             )
         return data
-
-    class Meta:
-        model = Review
-        fields = ("id", "text", "author", "score", "pub_date")
 
 
 class CommentSerializer(serializers.ModelSerializer):
