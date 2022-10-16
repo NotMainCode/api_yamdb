@@ -13,12 +13,11 @@ class IsAdminModeratorAuthorOrReadOnly(permissions.BasePermission):
     message = "You do not have permission to perform this action."
 
     def has_object_permission(self, request, view, obj):
-        return (
-                request.method in permissions.SAFE_METHODS
+        return (request.method in permissions.SAFE_METHODS
                 or request.user == obj.author
                 or request.user.is_moderator
                 or admin_role(request)
-        )
+                )
 
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS) or (

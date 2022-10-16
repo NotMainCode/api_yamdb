@@ -96,8 +96,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 """You can only leave one review for this creation."""
             )
-        else:
-            return data
+        return data
 
     class Meta:
         model = Review
