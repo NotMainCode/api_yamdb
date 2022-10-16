@@ -87,9 +87,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context["request"]
-        title_id = self.context["request"].parser_context["kwargs"]["title_id"]
         if request.method != "POST":
             return data
+        title_id = self.context["request"].parser_context["kwargs"]["title_id"]
         if Review.objects.filter(
             title_id=title_id, author=request.user
         ).exists():
@@ -101,7 +101,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ["id", "text", "author", "score", "pub_date"]
+        fields = ("id", "text", "author", "score", "pub_date")
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -113,7 +113,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ["id", "text", "author", "pub_date"]
+        fields = ("id", "text", "author", "pub_date")
 
 
 class UserSerializer(serializers.ModelSerializer):
