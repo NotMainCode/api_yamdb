@@ -1,9 +1,9 @@
 """URLs request handlers of the 'api' application."""
 
-import django
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import utils
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -158,7 +158,7 @@ def signup(request):
     serializer.is_valid(raise_exception=True)
     try:
         user, created = User.objects.get_or_create(**serializer.validated_data)
-    except django.db.utils.IntegrityError:
+    except utils.IntegrityError:
         return Response(
             {"detail": "username or email is not unique or incorrect"},
             status=status.HTTP_400_BAD_REQUEST,
@@ -190,6 +190,4 @@ def get_token(request):
             {"confirmation_code": "Confirmation code is incorrect."}
         )
     access_token = AccessToken().for_user(user)
-    return Response(
-        {"access_token": str(access_token)}, status=status.HTTP_200_OK
-    )
+    return Response({"token": str(access_token)}, status=status.HTTP_200_OK)

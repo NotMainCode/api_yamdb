@@ -1,5 +1,7 @@
 """Serializers of the 'api' application."""
 
+import re
+
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -137,6 +139,11 @@ class SignUpSerializer(serializers.Serializer):
 
     def validate_username(self, value):
         unacceptable_username(value)
+        if not re.fullmatch(settings.USERNAME_PATTERN, value):
+            raise serializers.ValidationError(
+                f"Username {value} is incorrect. This value may contain only"
+                " letters, numbers, and @/./+/-/_ characters."
+            )
         return value
 
 

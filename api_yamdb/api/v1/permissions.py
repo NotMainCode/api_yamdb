@@ -20,18 +20,6 @@ class IsAdminModeratorAuthorOrReadOnly(BasePermission):
         )
 
 
-class IsAuthorOrReadOnly(BasePermission):
-    """Full access: content author. Reading: other users."""
-
-    message = "Only author has permission to perform this action."
-
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS or request.user.is_authenticated
-
-    def has_object_permission(self, request, view, obj):
-        return request.method in SAFE_METHODS or obj.author == request.user
-
-
 class IsAdminOrReadOnly(BasePermission):
     """Full access: admin. Reading: other users."""
 
