@@ -69,7 +69,7 @@ Perform migrations
 py manage.py migrate
 ```
 
-Load test data (if you need)
+Perform migrations and load test data (if you need)
 ```
 py manage.py import_test_data
 ```
