@@ -4,8 +4,8 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from reviews.validators import validate_year
 from users.models import User
-from .validators import validate_year
 
 
 class Category(models.Model):
@@ -68,7 +68,7 @@ class Title(models.Model):
     year = models.PositiveIntegerField(
         verbose_name="Release year",
         help_text="Enter the release year",
-        validators=[validate_year]
+        validators=(validate_year,),
     )
 
     description = models.TextField(
@@ -78,16 +78,14 @@ class Title(models.Model):
         help_text="Enter a description (not necessary)",
     )
     genre = models.ManyToManyField(
-        Genre,
-        verbose_name="Genres",
-        help_text="Select a genre"
+        Genre, verbose_name="Genres", help_text="Select a genre"
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         verbose_name="Category",
-        help_text="Select a category"
+        help_text="Select a category",
     )
 
     class Meta:
@@ -114,7 +112,6 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="reviews",
         verbose_name="Review author",
     )
     score = models.PositiveSmallIntegerField(
@@ -158,7 +155,6 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="comments",
         verbose_name="Comment author",
     )
     pub_date = models.DateTimeField(

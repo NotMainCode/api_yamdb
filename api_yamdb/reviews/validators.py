@@ -8,5 +8,5 @@ def validate_year(value):
     if value > now().year:
         raise ValidationError(
             "Release year can't exceed the current date",
-            params={'value': value},
+            params={"value": value},
         )

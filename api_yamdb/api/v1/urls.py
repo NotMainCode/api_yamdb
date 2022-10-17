@@ -32,15 +32,12 @@ router_v1.register(
 
 router_v1.register("users", UserViewset, basename="users")
 
+auth_urlpatterns = [
+    path("signup/", signup, name="signup"),
+    path("token/", get_token, name="get_token"),
+]
+
 urlpatterns = [
+    path("auth/", include(auth_urlpatterns)),
     path("", include(router_v1.urls)),
-    path(
-        "auth/",
-        include(
-            [
-                path("signup/", signup, name="signup"),
-                path("token/", get_token, name="get_token"),
-            ]
-        ),
-    ),
 ]

@@ -14,23 +14,25 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         fill_test_data(self)
-        self.stdout.write('All test data loaded success.')
+        self.stdout.write("All test data loaded success.")
 
 
 def fill_table_from_csv(self, db, cursor, filename):
     """Clear table and fill data."""
-
     try:
-        with open(os.path.join(settings.STATICFILES_DIRS_DATA, filename), "r",
-                  encoding="utf8") as csv_data:
-            table = filename.split('.')[0]
+        with open(
+            os.path.join(settings.STATICFILES_DIRS_DATA, filename),
+            "r",
+            encoding="utf8",
+        ) as csv_data:
+            table = filename.split(".")[0]
             cursor.execute(f"DELETE FROM {table}")
             dr = csv.DictReader(csv_data, delimiter=";")
             values = []
             for i in dr:
                 keys = ",".join(i.keys())
                 values.append(tuple(i.values()))
-            fields = ",".join('?' * len(values[0]))
+            fields = ",".join("?" * len(values[0]))
             cursor.executemany(
                 f"INSERT INTO {table} ({keys}) VALUES ({fields})", values
             )

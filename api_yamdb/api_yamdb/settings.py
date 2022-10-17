@@ -119,7 +119,7 @@ if DEBUG:
 
 # To emulate a mail server
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-FROM_EMAIL = "YaMDb-email"
+DEFAULT_FROM_EMAIL = "YaMDb-email"
 
 # Constants
 UNACCEPTABLE_USERNAME = "me"
