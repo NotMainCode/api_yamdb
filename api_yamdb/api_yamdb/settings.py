@@ -123,6 +123,5 @@ DEFAULT_FROM_EMAIL = "YaMDb-email"
 
 # Constants
 UNACCEPTABLE_USERNAME = "me"
-USERNAME_PATTERN = r"[\w.@+-]+"
 
 NUM_CHAR = 15

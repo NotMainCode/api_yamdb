@@ -29,22 +29,22 @@ def fill_table_from_csv(self, db, cursor, filename):
         )
     except IOError:
         self.stdout.write(f"File '{filename}' open error.")
-    else:
-        table = filename.split(".")[0]
-        cursor.execute(f"DELETE FROM {table}")
-        dr = csv.DictReader(csv_data, delimiter=";")
-        values = []
-        for i in dr:
-            keys = ",".join(i.keys())
-            values.append(tuple(i.values()))
-        fields = ",".join("?" * len(values[0]))
-        cursor.executemany(
-            f"INSERT INTO {table} ({keys}) VALUES ({fields})", values
-        )
-        db.commit()
-        self.stdout.write(
-            f"Data from file '{filename}' imported in table '{table}'."
-        )
+        return
+    table = filename.split(".")[0]
+    cursor.execute(f"DELETE FROM {table}")
+    dr = csv.DictReader(csv_data, delimiter=";")
+    values = []
+    for i in dr:
+        keys = ",".join(i.keys())
+        values.append(tuple(i.values()))
+    fields = ",".join("?" * len(values[0]))
+    cursor.executemany(
+        f"INSERT INTO {table} ({keys}) VALUES ({fields})", values
+    )
+    db.commit()
+    self.stdout.write(
+        f"Data from file '{filename}' imported in table '{table}'."
+    )
 
 
 def fill_test_data(self):

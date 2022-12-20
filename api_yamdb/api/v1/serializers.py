@@ -1,8 +1,7 @@
 """Serializers of the 'api' application."""
 
-import re
-
 from django.conf import settings
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -13,7 +12,7 @@ from users.models import User
 def unacceptable_username(username):
     if username.lower() == settings.UNACCEPTABLE_USERNAME:
         raise serializers.ValidationError(
-            f"The name {settings.UNACCEPTABLE_USERNAME} is not allowed."
+            f"The name '{settings.UNACCEPTABLE_USERNAME}' is not allowed."
         )
 
 
@@ -134,23 +133,22 @@ class UserSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.Serializer):
     """Serializer for requests to auth/signup/ endpoint."""
 
-    username = serializers.CharField(max_length=150)
+    username = serializers.CharField(
+        max_length=150, validators=(UnicodeUsernameValidator(),)
+    )
     email = serializers.EmailField(max_length=254)
 
     def validate_username(self, value):
         unacceptable_username(value)
-        if not re.fullmatch(settings.USERNAME_PATTERN, value):
-            raise serializers.ValidationError(
-                f"Username {value} is incorrect. This value may contain only"
-                " letters, numbers, and @/./+/-/_ characters."
-            )
         return value
 
 
 class GetTokenSerializer(serializers.Serializer):
     """Serializer for requests to auth/token/ endpoint."""
 
-    username = serializers.CharField(max_length=150)
+    username = serializers.CharField(
+        max_length=150, validators=(UnicodeUsernameValidator(),)
+    )
     confirmation_code = serializers.CharField(max_length=24)
 
     def validate_username(self, value):

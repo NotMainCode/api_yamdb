@@ -46,9 +46,11 @@ Full API documentation is available at endpoint:
 
 Python 3.7
 
-Django 2.2.16
+Django 2.2.28
 
-Django REST framework 3.2.14
+Django REST framework 3.12.4
+
+Simple JWT 5.2.1
 
 ## For launch
 
